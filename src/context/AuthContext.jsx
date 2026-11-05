@@ -25,12 +25,23 @@ export function AuthProvider({ children }) {
     return d.user;
   }, []);
 
+  const signup = useCallback(async (name, email, password) => {
+    const d = await api('/auth/signup', { method: 'POST', body: { name, email, password } });
+    tokenStore.set(d.token);
+    setUser(d.user);
+    return d.user;
+  }, []);
+
   const logout = useCallback(() => {
     tokenStore.set(null);
     setUser(null);
   }, []);
 
-  return <AuthContext.Provider value={{ user, setUser, ready, login, logout }}>{children}</AuthContext.Provider>;
+  const isCreator = user?.kind === 'creator' || Boolean(user?.slug);
+
+  return (
+    <AuthContext.Provider value={{ user, setUser, ready, login, signup, logout, isCreator }}>{children}</AuthContext.Provider>
+  );
 }
 
 export const useAuth = () => useContext(AuthContext);

@@ -2,12 +2,13 @@ import { Link } from 'react-router-dom';
 import { LockIcon } from './icons.jsx';
 
 export const FOOTER_LINKS = [
+  ['/hall-of-fame', 'Hall of Fame'],
   ['/about', 'About'],
   ['/contact', 'Contact Us'],
   ['/terms', 'Terms & Conditions'],
   ['/privacy', 'Privacy Policy'],
   ['/refund-policy', 'Refund Policy'],
-  ['/return-policy', 'Return Policy'],
+  ['/return-policy', 'Shipping & Delivery'],
   ['/disclaimer', 'Disclaimer'],
 ];
 

@@ -7,6 +7,9 @@ export const formatNumber = (n) =>
 
 export const formatMoney = (n, currency = 'INR') => `${currencySymbol(currency)}${formatNumber(n)}`;
 
+export const shortDate = (d) =>
+  d ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) : '';
+
 export function timeAgo(date) {
   const s = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
   if (s < 60) return 'just now';

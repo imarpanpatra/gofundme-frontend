@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import Header from '../components/Header.jsx';
 import SupportWidget from '../components/SupportWidget.jsx';
 import AboutCard from '../components/AboutCard.jsx';
@@ -12,6 +12,8 @@ import NotFound from './NotFound.jsx';
 import { api, assetUrl } from '../lib/api.js';
 import { themeVars } from '../lib/format.js';
 import { refreshSite } from '../lib/useSite.js';
+import { primeCreator } from '../lib/useCreator.js';
+import PostCard from '../components/PostCard.jsx';
 import { prepareImage } from '../lib/image.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
@@ -22,6 +24,7 @@ export default function CreatorPage() {
   const toast = useToast();
   const [state, setState] = useState({ status: 'loading' });
   const [supporters, setSupporters] = useState([]);
+  const [latestPosts, setLatestPosts] = useState([]);
   const [hasMore, setHasMore] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -35,6 +38,8 @@ export default function CreatorPage() {
     try {
       const d = await api(`/pages/${slug}`);
       setState({ status: 'ready', creator: d.creator });
+      primeCreator(d.creator);
+      setLatestPosts(d.latestPosts || []);
       setSupporters(d.supporters);
       setHasMore(d.hasMore);
       document.title = `${d.creator.name}`;
@@ -75,6 +80,7 @@ export default function CreatorPage() {
   const applyCreator = (updated, opts = {}) => {
     setState({ status: 'ready', creator: updated });
     refreshSite(updated);
+    primeCreator(updated);
     if (user) setUser({ ...user, ...updated });
     if (!opts.keepOpen) setEditing(false);
   };
@@ -147,7 +153,6 @@ export default function CreatorPage() {
               <SupportWidget
                 ref={widgetRef}
                 creator={creator}
-                defaultName={isOwner ? user.name : ''}
                 onSupported={onSupported}
               />
             </div>
@@ -162,6 +167,15 @@ export default function CreatorPage() {
                   onLoadMore={loadMore}
                 />
               </div>
+              {latestPosts.length > 0 && (
+                <section className="feature-box home-posts" aria-label="Posts">
+                  <h2 className="home-posts-title">Posts</h2>
+                  <PostCard slug={creator.slug} post={{ ...latestPosts[0], locked: latestPosts[0].visibility !== 'public' }} />
+                  <Link to={`/${creator.slug}/posts`} className="pill-btn pill-outline see-more">
+                    View all posts
+                  </Link>
+                </section>
+              )}
             </div>
           </div>
         </div>

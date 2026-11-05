@@ -1,7 +1,12 @@
 import { useState } from 'react';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import Spinner from '../components/Spinner.jsx';
+
+export function afterAuthPath(state, user) {
+  if (state?.from) return state.from;
+  return user?.slug ? `/${user.slug}` : '/';
+}
 
 export default function Login() {
   const { user, ready, login } = useAuth();
@@ -13,7 +18,7 @@ export default function Login() {
   const [busy, setBusy] = useState(false);
 
   if (!ready) return <Spinner fullPage />;
-  if (user) return <Navigate to={location.state?.from || `/${user.slug}`} replace />;
+  if (user) return <Navigate to={afterAuthPath(location.state, user)} replace />;
 
   const submit = async (e) => {
     e.preventDefault();
@@ -21,7 +26,7 @@ export default function Login() {
     setBusy(true);
     try {
       const u = await login(email, password);
-      navigate(location.state?.from || `/${u.slug}`, { replace: true });
+      navigate(afterAuthPath(location.state, u), { replace: true });
     } catch (err) {
       setError(err.message);
       setBusy(false);
@@ -32,7 +37,7 @@ export default function Login() {
     <div className="auth-page">
       <form className="auth-card" onSubmit={submit}>
         <h1>Welcome back</h1>
-        <p className="muted">Log in to manage your page.</p>
+        <p className="muted">{location.state?.reason || 'Log in to your account.'}</p>
         <input
           className="input-box input-sm"
           type="email"
@@ -55,6 +60,12 @@ export default function Login() {
         <button type="submit" className="support-btn" disabled={busy}>
           {busy ? <span className="dot-flashing" /> : 'Log in'}
         </button>
+        <p className="auth-switch">
+          New here?{' '}
+          <Link to="/signup" state={location.state} replace>
+            Create an account
+          </Link>
+        </p>
       </form>
     </div>
   );

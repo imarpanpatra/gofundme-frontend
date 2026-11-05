@@ -1,5 +1,6 @@
 import { formatMoney, initials, socialHandleUrl, timeAgo } from '../lib/format.js';
-import { HeartIcon } from './icons.jsx';
+import { Link } from 'react-router-dom';
+import { HeartIcon, TrophyIcon } from './icons.jsx';
 import Spinner from './Spinner.jsx';
 
 function SupporterName({ name }) {
@@ -10,6 +11,32 @@ function SupporterName({ name }) {
     </a>
   ) : (
     <span className="supporter-name">{name}</span>
+  );
+}
+
+export function SupportAction({ s }) {
+  if (s.type === 'membership') {
+    return (
+      <>
+        is now a member{s.tierName && <> · <strong>{s.tierName}</strong></>}
+      </>
+    );
+  }
+  if (s.type === 'shop') {
+    return (
+      <>
+        bought <strong>{s.productTitle || 'an item'}</strong>
+      </>
+    );
+  }
+  return (
+    <>
+      {s.monthly ? 'is a monthly supporter' : 'supported'}{' '}
+      <strong>
+        {formatMoney(s.amount, s.currency)}
+        {s.monthly && '/month'}
+      </strong>
+    </>
   );
 }
 
@@ -32,14 +59,15 @@ export default function RecentSupporters({ creatorName, supporters, hasMore, loa
               <span className="supporter-avatar">{initials(s.name)}</span>
               <div className="supporter-main">
                 <p className="supporter-line">
-                  <SupporterName name={s.name} /> {s.monthly ? 'is a monthly supporter' : 'supported'}{' '}
-                  <strong>
-                    {formatMoney(s.amount, s.currency)}
-                    {s.monthly && '/month'}
-                  </strong>
+                  <SupporterName name={s.name} /> <SupportAction s={s} />
                 </p>
                 <p className="supporter-time">{timeAgo(s.createdAt)}</p>
-                {s.message && <p className="supporter-message">{s.message}</p>}
+                {(s.message || s.videoUrl) && (
+                  <div className="supporter-message">
+                    {s.videoUrl && <video className="supporter-video" src={s.videoUrl} controls playsInline preload="metadata" />}
+                    {s.message && <p>{s.message}</p>}
+                  </div>
+                )}
               </div>
             </li>
           ))}
@@ -51,6 +79,9 @@ export default function RecentSupporters({ creatorName, supporters, hasMore, loa
           {loadingMore ? <Spinner small /> : 'See more'}
         </button>
       )}
+      <Link to="/hall-of-fame" className="hof-link">
+        <TrophyIcon width={18} height={18} /> View the Hall of Fame
+      </Link>
     </section>
   );
 }

@@ -25,14 +25,31 @@ export default function About() {
           <h2>About this page</h2>
           <div className="about-body" dangerouslySetInnerHTML={{ __html: creator.about }} />
 
-          <h2>How your support works</h2>
+          <h2>What you can do here</h2>
           <ul>
-            <li>You choose any amount, once or monthly, on the <Link to={`/${creator.slug}`}>support page</Link>.</li>
+            <li>
+              <strong>Support me</strong> with any amount, once or monthly, on the <Link to={`/${creator.slug}`}>support page</Link>.
+            </li>
+            <li>
+              <strong>Become a member</strong> for a monthly fee and get the benefits listed on the{' '}
+              <Link to={`/${creator.slug}/membership`}>Membership page</Link>, such as members-only posts.
+            </li>
+            <li>
+              <strong>Buy digital products</strong> such as software and downloads, or book a 1-on-1 call, in the{' '}
+              <Link to={`/${creator.slug}/shop`}>Shop</Link>. Downloads are delivered instantly. Nothing physical is sold or
+              shipped.
+            </li>
+          </ul>
+
+          <h2>Good to know</h2>
+          <ul>
+            <li>You need a free account to pay, so your purchases and memberships are always in My account.</li>
             <li>Payments are processed securely by Razorpay. Card and bank details never reach this site.</li>
             <li>Your name and message appear in "Recent supporters", unless you keep the message private.</li>
             <li>
-              Please read the <Link to="/terms">Terms</Link>, <Link to="/refund-policy">Refund Policy</Link> and{' '}
-              <Link to="/privacy">Privacy Policy</Link> before you contribute.
+              Please read the <Link to="/terms">Terms</Link>, <Link to="/refund-policy">Refund Policy</Link>,{' '}
+              <Link to="/return-policy">Shipping &amp; Delivery Policy</Link> and <Link to="/privacy">Privacy Policy</Link>{' '}
+              before you pay.
             </li>
           </ul>
 

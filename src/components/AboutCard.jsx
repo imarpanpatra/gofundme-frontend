@@ -1,5 +1,6 @@
 import { GlobeIcon } from './icons.jsx';
 import { hostOf } from '../lib/format.js';
+import YouTubeEmbed from './YouTubeEmbed.jsx';
 
 export default function AboutCard({ creator, isOwner, onEdit }) {
   return (
@@ -12,6 +13,7 @@ export default function AboutCard({ creator, isOwner, onEdit }) {
           </button>
         )}
       </div>
+      {creator.featuredVideoId && <YouTubeEmbed id={creator.featuredVideoId} title={`${creator.name} — featured video`} />}
       {creator.about ? (
         <div className="about-body" dangerouslySetInnerHTML={{ __html: creator.about }} />
       ) : (
