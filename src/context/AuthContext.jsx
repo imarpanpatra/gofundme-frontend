@@ -12,9 +12,14 @@ export function AuthProvider({ children }) {
       setReady(true);
       return;
     }
+    const sent = tokenStore.get();
     api('/auth/me')
-      .then((d) => setUser(d.user))
-      .catch(() => tokenStore.set(null))
+      .then((d) => {
+        if (tokenStore.get() === sent) setUser(d.user);
+      })
+      .catch((err) => {
+        if (err.status === 401 && tokenStore.get() === sent) tokenStore.set(null);
+      })
       .finally(() => setReady(true));
   }, []);
 
@@ -25,15 +30,14 @@ export function AuthProvider({ children }) {
     return d.user;
   }, []);
 
-  const signup = useCallback(async (name, email, password) => {
-    const d = await api('/auth/signup', { method: 'POST', body: { name, email, password } });
+  const loginWithGoogle = useCallback(async (credential) => {
+    const d = await api('/auth/google', { method: 'POST', body: { credential } });
     tokenStore.set(d.token);
     setUser(d.user);
     return d.user;
   }, []);
 
-  const loginWithGoogle = useCallback(async (credential) => {
-    const d = await api('/auth/google', { method: 'POST', body: { credential } });
+  const applySession = useCallback((d) => {
     tokenStore.set(d.token);
     setUser(d.user);
     return d.user;
@@ -47,7 +51,7 @@ export function AuthProvider({ children }) {
   const isCreator = user?.kind === 'creator' || Boolean(user?.slug);
 
   return (
-    <AuthContext.Provider value={{ user, setUser, ready, login, signup, loginWithGoogle, logout, isCreator }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ user, setUser, ready, login, loginWithGoogle, applySession, logout, isCreator }}>{children}</AuthContext.Provider>
   );
 }
 

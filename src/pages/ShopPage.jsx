@@ -64,7 +64,10 @@ function ProductModal({ product, creator, user, onClose, onBought }) {
     try {
       const order = await api(`/shop/${creator.slug}/products/${product.id}/order`, { method: 'POST', body: { answer } });
       const support = await payWith(order, { creator, description: product.title, onFailed: (msg) => toast(msg, 'error') });
-      if (support) {
+      if (support?.pending) {
+        toast(t('pay.pending'));
+        onClose();
+      } else if (support) {
         const overview = await api('/account/overview').catch(() => null);
         const purchase = overview?.purchases.find((p) => String(p.id) === String(support.id)) || { title: product.title };
         onBought(purchase);
@@ -158,9 +161,8 @@ function Shop({ creator, user, reload }) {
 }
 
 export default function ShopPage() {
-  const { t } = useI18n();
   return (
-    <CreatorShell tab="shop" title={t('tabs.shop')} wide>
+    <CreatorShell tab="shop" wide>
       {({ creator, user, reload }) => <Shop creator={creator} user={user} reload={reload} />}
     </CreatorShell>
   );

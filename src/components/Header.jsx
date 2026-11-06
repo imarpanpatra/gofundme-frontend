@@ -40,6 +40,7 @@ export function tabsFor(creator, t) {
   const tabs = creator.tabs || {};
   return [
     ['home', t('tabs.home'), `/${creator.slug}`],
+    tabs.itinerary > 0 && ['itinerary', t('tabs.itinerary'), `/${creator.slug}/itinerary`],
     tabs.posts > 0 && ['posts', t('tabs.posts'), `/${creator.slug}/posts`],
     tabs.membership && ['membership', t('tabs.membership'), `/${creator.slug}/membership`],
     tabs.shop > 0 && ['shop', t('tabs.shop'), `/${creator.slug}/shop`],

@@ -12,6 +12,7 @@ import {
   HomeIcon,
   LockIcon,
   MailIcon,
+  MapIcon,
   MenuIcon,
   PageIcon,
   PenIcon,
@@ -19,6 +20,7 @@ import {
 import { useAuth } from '../../context/AuthContext.jsx';
 import { assetUrl } from '../../lib/api.js';
 import { initials, themeVars } from '../../lib/format.js';
+import { useNoindex } from '../../seo/useSeo.js';
 
 function SideLink({ to, icon, children, end }) {
   return (
@@ -33,6 +35,7 @@ export default function StudioLayout() {
   const { user, ready, isCreator, logout, setUser } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  useNoindex();
   const [drawer, setDrawer] = useState(false);
   const [publishOpen, setPublishOpen] = useState(location.pathname.startsWith('/dashboard/posts'));
 
@@ -69,6 +72,9 @@ export default function StudioLayout() {
           </SideLink>
           <SideLink to="/dashboard/shop" icon={<BagIcon />}>
             Shop
+          </SideLink>
+          <SideLink to="/dashboard/itinerary" icon={<MapIcon />}>
+            Itinerary
           </SideLink>
           <button type="button" className={`side-link${publishOpen ? ' expanded' : ''}`} onClick={() => setPublishOpen((o) => !o)} aria-expanded={publishOpen}>
             <span className="side-icon">
@@ -132,7 +138,7 @@ export default function StudioLayout() {
           </Dropdown>
         </header>
         <main className="studio-main">
-          <Outlet context={{ creator: user, setCreator: (c) => setUser({ ...user, ...c }) }} />
+          <Outlet context={{ creator: user, setCreator: (c) => setUser((u) => ({ ...u, ...c })) }} />
         </main>
       </div>
     </div>

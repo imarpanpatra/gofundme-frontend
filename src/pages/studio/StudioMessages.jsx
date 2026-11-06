@@ -1,21 +1,28 @@
 import { useEffect, useState } from 'react';
 import Spinner from '../../components/Spinner.jsx';
 import { api } from '../../lib/api.js';
+import { useToast } from '../../context/ToastContext.jsx';
 import { initials, timeAgo } from '../../lib/format.js';
 
 export default function StudioMessages() {
   const [page, setPage] = useState(1);
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
+  const toast = useToast();
 
   useEffect(() => {
     document.title = 'Messages';
   }, []);
 
   useEffect(() => {
+    let alive = true;
+    setError('');
     api(`/contact?page=${page}`)
-      .then(setData)
-      .catch((err) => setError(err.message));
+      .then((d) => alive && setData(d))
+      .catch((err) => alive && setError(err.message));
+    return () => {
+      alive = false;
+    };
   }, [page]);
 
   const markRead = async (id) => {
@@ -27,7 +34,7 @@ export default function StudioMessages() {
         messages: d.messages.map((m) => (m.id === id ? { ...m, read: true } : m)),
       }));
     } catch (err) {
-      setError(err.message);
+      toast(err.message, 'error');
     }
   };
 

@@ -41,7 +41,10 @@ function Tiers({ creator, user, reload }) {
         description: `${tier.name} membership`,
         onFailed: (msg) => toast(msg, 'error'),
       });
-      if (support) {
+      if (support?.pending) {
+        toast(t('pay.pending'));
+        load();
+      } else if (support) {
         confetti();
         toast(t('membership.welcome', { tier: tier.name }));
         load();
@@ -121,9 +124,8 @@ function Tiers({ creator, user, reload }) {
 }
 
 export default function MembershipPage() {
-  const { t } = useI18n();
   return (
-    <CreatorShell tab="membership" title={t('tabs.membership')} wide>
+    <CreatorShell tab="membership" wide>
       {({ creator, user, reload }) => <Tiers creator={creator} user={user} reload={reload} />}
     </CreatorShell>
   );

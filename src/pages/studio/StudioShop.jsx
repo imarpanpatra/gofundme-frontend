@@ -72,7 +72,7 @@ function ProductModal({ product, kind, onClose, onSaved }) {
               </>
             )}
           </button>
-          <input ref={imageInput} type="file" accept="image/*" hidden onChange={(e) => upload(e.target.files[0], 'image')} />
+          <input ref={imageInput} type="file" accept="image/*" hidden onChange={(e) => (upload(e.target.files[0], 'image'), (e.target.value = ''))} />
           {form.image && (
             <button type="button" className="text-link" onClick={() => setForm((f) => ({ ...f, image: '' }))}>
               Remove image
@@ -119,7 +119,7 @@ function ProductModal({ product, kind, onClose, onSaved }) {
               </button>
             </div>
             <span className="field-hint">Upload a PDF, ZIP, image or video up to 4MB, or paste a link (Google Drive, Dropbox…).</span>
-            <input ref={fileInput} type="file" accept=".pdf,.zip,image/*,video/mp4,video/webm" hidden onChange={(e) => upload(e.target.files[0], 'file')} />
+            <input ref={fileInput} type="file" accept=".pdf,.zip,image/*,video/mp4,video/webm" hidden onChange={(e) => (upload(e.target.files[0], 'file'), (e.target.value = ''))} />
           </div>
         </div>
       </div>

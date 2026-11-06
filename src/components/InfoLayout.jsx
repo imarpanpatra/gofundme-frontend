@@ -1,10 +1,12 @@
-import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import Header from './Header.jsx';
 import Footer from './Footer.jsx';
 import Spinner from './Spinner.jsx';
 import { useSite } from '../lib/useSite.js';
 import { useAuth } from '../context/AuthContext.jsx';
-import { brandName, themeVars } from '../lib/format.js';
+import { themeVars } from '../lib/format.js';
+import useSeo from '../seo/useSeo.js';
+import { routeOf } from '../seo/meta.js';
 import { useI18n } from '../i18n/index.jsx';
 
 export default function InfoLayout({ title, updated, children }) {
@@ -12,9 +14,8 @@ export default function InfoLayout({ title, updated, children }) {
   const { user } = useAuth();
   const { t } = useI18n();
 
-  useEffect(() => {
-    if (site.status === 'ready') document.title = `${title} · ${brandName(site.creator)}`;
-  }, [site, title]);
+  const { pathname } = useLocation();
+  useSeo('info', { creator: site.creator, name: routeOf(pathname).name }, site.status === 'ready');
 
   if (site.status === 'loading') return <Spinner fullPage />;
   if (site.status === 'error') {

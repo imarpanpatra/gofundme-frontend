@@ -15,6 +15,7 @@ function PostsList({ creator }) {
   const [meta, setMeta] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  const [retry, setRetry] = useState(0);
 
   const pick = (name) => {
     setPosts([]);
@@ -24,16 +25,22 @@ function PostsList({ creator }) {
   };
 
   useEffect(() => {
+    let alive = true;
     setLoading(true);
+    setError('');
     const q = new URLSearchParams({ page: String(page), ...(category ? { category } : {}) });
     api(`/posts/${creator.slug}?${q}`)
       .then((d) => {
-        setPosts((prev) => (page === 1 ? d.posts : [...prev, ...d.posts]));
+        if (!alive) return;
+        setPosts((prev) => (page === 1 ? d.posts : [...prev, ...d.posts.filter((p) => !prev.some((x) => x.slug === p.slug))]));
         setMeta(d);
       })
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, [creator.slug, category, page, user?.id, user?.slug]);
+      .catch((err) => alive && setError(err.message))
+      .finally(() => alive && setLoading(false));
+    return () => {
+      alive = false;
+    };
+  }, [creator.slug, category, page, retry]);
 
   return (
     <section className="feature-box posts-box">
@@ -69,8 +76,8 @@ function PostsList({ creator }) {
           <Spinner />
         </div>
       )}
-      {meta && page < meta.pages && !loading && (
-        <button type="button" className="pill-btn pill-outline see-more" onClick={() => setPage((p) => p + 1)}>
+      {meta && !loading && (error ? page > 1 : page < meta.pages) && (
+        <button type="button" className="pill-btn pill-outline see-more" onClick={() => (error ? setRetry((n) => n + 1) : setPage((p) => p + 1))}>
           {t('posts.loadMore')}
         </button>
       )}
@@ -79,10 +86,9 @@ function PostsList({ creator }) {
 }
 
 export default function PostsPage() {
-  const { t } = useI18n();
   return (
-    <CreatorShell tab="posts" title={t('tabs.posts')} wide>
-      {({ creator }) => <PostsList creator={creator} />}
+    <CreatorShell tab="posts" wide>
+      {({ creator, user }) => <PostsList key={user?.id || 'guest'} creator={creator} />}
     </CreatorShell>
   );
 }

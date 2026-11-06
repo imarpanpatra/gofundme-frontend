@@ -4,7 +4,15 @@ import { api } from './api.js';
 let cache;
 
 export function refreshSite(creator) {
-  cache = Promise.resolve({ slug: creator.slug, creator });
+  const prev = cache;
+  if (!prev) return;
+  const next = prev
+    .then((d) => (d.creator?.slug === creator.slug ? { ...d, creator } : api('/pages/default')))
+    .catch((err) => {
+      if (cache === next) cache = null;
+      throw err;
+    });
+  cache = next;
 }
 
 export function useSite() {

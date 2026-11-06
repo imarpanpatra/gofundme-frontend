@@ -3,6 +3,33 @@ import { loadRazorpay } from './razorpay.js';
 
 export const MIN_AMOUNT = 11;
 
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const retryable = (err) => !err?.status || err.status >= 500 || err.status === 429;
+
+async function confirmPayment(order, resp) {
+  let lastError;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      const { support } = await api('/payments/verify', { method: 'POST', body: resp });
+      return support;
+    } catch (err) {
+      if (!retryable(err)) throw err;
+      lastError = err;
+      await sleep(1500 * (attempt + 1));
+    }
+  }
+  if (order.supportId) {
+    for (let attempt = 0; attempt < 6; attempt += 1) {
+      try {
+        const d = await api(`/payments/status/${order.supportId}`);
+        if (d.status === 'paid' && d.support) return d.support;
+      } catch {}
+      await sleep(3000);
+    }
+  }
+  return { pending: true, error: lastError?.message || '' };
+}
+
 export async function payWith(order, { creator, description, prefillName, onFailed }) {
   const Razorpay = await loadRazorpay();
   return new Promise((resolve, reject) => {
@@ -16,8 +43,7 @@ export async function payWith(order, { creator, description, prefillName, onFail
       theme: { color: creator.themeColor },
       handler: async (resp) => {
         try {
-          const { support } = await api('/payments/verify', { method: 'POST', body: resp });
-          resolve(support);
+          resolve(await confirmPayment(order, resp));
         } catch (err) {
           reject(err);
         }

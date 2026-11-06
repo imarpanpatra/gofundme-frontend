@@ -9,6 +9,8 @@ import { useSite } from '../lib/useSite.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import { useI18n } from '../i18n/index.jsx';
+import ProfileSettings from '../components/ProfileSettings.jsx';
+import { useNoindex } from '../seo/useSeo.js';
 
 function CancelButton({ subscriptionId, label, onDone }) {
   const toast = useToast();
@@ -51,6 +53,7 @@ export default function AccountPage() {
     if (user) load();
   }, [user, load]);
 
+  useNoindex();
   useEffect(() => {
     document.title = t('header.myAccount');
   }, [t]);
@@ -76,6 +79,8 @@ export default function AccountPage() {
             </Link>
           )}
         </section>
+
+        {!isCreator && <ProfileSettings />}
 
         {error && <p className="form-error">{error}</p>}
         {!data && !error && <Spinner />}
@@ -167,6 +172,7 @@ export default function AccountPage() {
                       <div className="dash-row-main">
                         <p>
                           {tr('account.amountTo', { amount: `${formatMoney(s.amount)}${s.monthly ? t('common.perMonth') : ''}`, name: <Link to={`/${s.creator?.slug}`}>{s.creator?.name}</Link> })}
+                          {s.momentTitle && <span className="badge badge-tip dash-moment">{s.momentTitle}</span>}
                         </p>
                         <p className="supporter-time">
                           {shortDate(s.paidAt)}

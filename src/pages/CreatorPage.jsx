@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, Navigate, useLocation, useParams } from 'react-router-dom';
 import Header from '../components/Header.jsx';
 import SupportWidget from '../components/SupportWidget.jsx';
 import AboutCard from '../components/AboutCard.jsx';
@@ -10,19 +10,22 @@ import Footer from '../components/Footer.jsx';
 import Spinner from '../components/Spinner.jsx';
 import NotFound from './NotFound.jsx';
 import { api, assetUrl } from '../lib/api.js';
-import { brandName, mentionOf, themeVars } from '../lib/format.js';
+import { mentionOf, themeVars } from '../lib/format.js';
 import { refreshSite } from '../lib/useSite.js';
 import { primeCreator } from '../lib/useCreator.js';
 import PostCard from '../components/PostCard.jsx';
 import GoalCard from '../components/GoalCard.jsx';
 import VietnamBackdrop, { PhotoCredits } from '../components/VietnamBackdrop.jsx';
 import { prepareImage } from '../lib/image.js';
+import useParallax from '../lib/useParallax.js';
+import useSeo from '../seo/useSeo.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import { useI18n } from '../i18n/index.jsx';
 
 export default function CreatorPage() {
   const { slug } = useParams();
+  const location = useLocation();
   const { user, setUser } = useAuth();
   const toast = useToast();
   const { t } = useI18n();
@@ -38,18 +41,24 @@ export default function CreatorPage() {
   const [widgetVisible, setWidgetVisible] = useState(true);
   const widgetRef = useRef(null);
   const coverInput = useRef(null);
+  useSeo('creator', { creator: state.creator }, state.status === 'ready');
+  const coverRef = useParallax(`${state.status}:${state.creator?.cover || ''}`);
+
+  const slugRef = useRef(slug);
+  slugRef.current = slug;
 
   const load = useCallback(async () => {
     try {
       const d = await api(`/pages/${slug}`);
+      if (slugRef.current !== slug) return;
       setState({ status: 'ready', creator: d.creator });
       primeCreator(d.creator);
       setLatestPosts(d.latestPosts || []);
       setSupporters(d.supporters);
       setHasMore(d.hasMore);
       setFunding({ raised: d.raised || 0, supporters: d.supporterCount || 0 });
-      document.title = brandName(d.creator);
     } catch (err) {
+      if (slugRef.current !== slug) return;
       setState({ status: err.status === 404 ? 'missing' : 'error', message: err.message });
     }
   }, [slug]);
@@ -81,13 +90,16 @@ export default function CreatorPage() {
   }
 
   const { creator } = state;
+  if (creator.slug !== slug) {
+    return <Navigate to={location.pathname.replace(/^\/[^/]+/, `/${creator.slug}`) + location.search + location.hash} replace />;
+  }
   const isOwner = Boolean(user && user.slug === creator.slug);
 
   const applyCreator = (updated, opts = {}) => {
     setState({ status: 'ready', creator: updated });
     refreshSite(updated);
     primeCreator(updated);
-    if (user) setUser({ ...user, ...updated });
+    if (user) setUser((u) => (u ? { ...u, ...updated } : u));
     if (!opts.keepOpen) setEditing(false);
   };
 
@@ -96,7 +108,7 @@ export default function CreatorPage() {
     if (!last) return;
     setLoadingMore(true);
     try {
-      const d = await api(`/pages/${slug}/supporters?before=${encodeURIComponent(last.createdAt)}`);
+      const d = await api(`/pages/${slug}/supporters?before=${encodeURIComponent(last.createdAt)}&beforeId=${encodeURIComponent(last.id)}`);
       setSupporters((s) => [...s, ...d.supporters]);
       setHasMore(d.hasMore);
     } catch (err) {
@@ -118,7 +130,7 @@ export default function CreatorPage() {
       toast(err.message, 'error');
     } finally {
       setCoverUploading(false);
-      coverInput.current.value = '';
+      if (coverInput.current) coverInput.current.value = '';
     }
   };
 
@@ -136,9 +148,9 @@ export default function CreatorPage() {
       <main className="page-main">
         <div className="cover-wrap">
           {creator.cover ? (
-            <img src={assetUrl(creator.cover)} alt={t('home.coverAlt')} className="cover-image" fetchpriority="high" />
+            <img src={assetUrl(creator.cover)} alt={t('home.coverAlt')} className="cover-image" fetchpriority="high" ref={coverRef} />
           ) : (
-            <div className="cover-image cover-empty" />
+            <div className="cover-image cover-empty" ref={coverRef} />
           )}
           {isOwner && (
             <>

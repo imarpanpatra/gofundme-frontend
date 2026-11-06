@@ -4,7 +4,14 @@ import { HeartIcon, TrophyIcon } from './icons.jsx';
 import Spinner from './Spinner.jsx';
 import { useI18n } from '../i18n/index.jsx';
 
-function SupporterName({ name }) {
+function SupporterName({ name, username }) {
+  if (username) {
+    return (
+      <Link to={`/@${username}`} className="supporter-name">
+        {name}
+      </Link>
+    );
+  }
   const url = socialHandleUrl(name);
   return url ? (
     <a href={url} target="_blank" rel="nofollow noopener noreferrer" className="supporter-name">
@@ -26,6 +33,7 @@ export function SupportAction({ s }) {
     return tr('supporters.bought', { item: strong(s.productTitle || t('supporters.anItem')) });
   }
   const amount = formatMoney(s.amount, s.currency);
+  if (s.momentTitle) return tr('supporters.sponsored', { moment: strong(s.momentTitle), amount: strong(amount) });
   return s.monthly
     ? tr('supporters.monthly', { amount: strong(`${amount}${t('common.perMonth')}`) })
     : tr('supporters.supported', { amount: strong(amount) });
@@ -51,7 +59,7 @@ export default function RecentSupporters({ creatorName, supporters, hasMore, loa
               <span className="supporter-avatar">{initials(s.name)}</span>
               <div className="supporter-main">
                 <p className="supporter-line">
-                  <SupporterName name={s.name} /> <SupportAction s={s} />
+                  <SupporterName name={s.name} username={s.username} /> <SupportAction s={s} />
                 </p>
                 <p className="supporter-time">{timeAgo(s.createdAt)}</p>
                 {(s.message || s.videoUrl) && (

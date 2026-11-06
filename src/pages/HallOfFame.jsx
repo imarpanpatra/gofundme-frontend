@@ -5,7 +5,8 @@ import Footer from '../components/Footer.jsx';
 import Spinner from '../components/Spinner.jsx';
 import { TrophyIcon } from '../components/icons.jsx';
 import { api } from '../lib/api.js';
-import { brandName, mentionOf, formatMoney, formatNumber, initials, socialHandleUrl, themeVars } from '../lib/format.js';
+import useSeo from '../seo/useSeo.js';
+import { mentionOf, formatMoney, formatNumber, initials, socialHandleUrl, themeVars } from '../lib/format.js';
 import { useSite } from '../lib/useSite.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { LOCALES, useI18n } from '../i18n/index.jsx';
@@ -20,7 +21,11 @@ function Name({ person }) {
   const url = socialHandleUrl(person.name);
   return (
     <>
-      {url ? (
+      {person.username ? (
+        <Link to={`/@${person.username}`} className="hof-name">
+          {person.name}
+        </Link>
+      ) : url ? (
         <a href={url} target="_blank" rel="nofollow noopener noreferrer" className="hof-name">
           {person.name}
         </a>
@@ -62,11 +67,15 @@ function Leaderboard({ slug, user, creatorName }) {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    let alive = true;
     setData(null);
     setError('');
     api(`/pages/${slug}/hall-of-fame?period=${period}`)
-      .then(setData)
-      .catch((err) => setError(err.message));
+      .then((d) => alive && setData(d))
+      .catch((err) => alive && setError(err.message));
+    return () => {
+      alive = false;
+    };
   }, [slug, period, user?.id, user?.slug]);
 
   return (
@@ -168,17 +177,24 @@ function AllSupporters({ slug }) {
   const [meta, setMeta] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [retry, setRetry] = useState(0);
 
   useEffect(() => {
+    let alive = true;
     setLoading(true);
+    setError('');
     api(`/pages/${slug}/hall-of-fame/supporters?page=${page}`)
       .then((d) => {
+        if (!alive) return;
         setRows((prev) => (page === 1 ? d.supporters : [...prev, ...d.supporters]));
         setMeta(d);
       })
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, [slug, page]);
+      .catch((err) => alive && setError(err.message))
+      .finally(() => alive && setLoading(false));
+    return () => {
+      alive = false;
+    };
+  }, [slug, page, retry]);
 
   return (
     <section className="feature-box">
@@ -208,8 +224,8 @@ function AllSupporters({ slug }) {
           <Spinner />
         </div>
       )}
-      {meta && page < meta.pages && !loading && (
-        <button type="button" className="pill-btn pill-outline see-more" onClick={() => setPage((p) => p + 1)}>
+      {meta && !loading && (error ? page > 1 : page < meta.pages) && (
+        <button type="button" className="pill-btn pill-outline see-more" onClick={() => (error ? setRetry((n) => n + 1) : setPage((p) => p + 1))}>
           {t('hof.showMore')}
         </button>
       )}
@@ -222,9 +238,7 @@ export default function HallOfFame() {
   const { user } = useAuth();
   const { t } = useI18n();
 
-  useEffect(() => {
-    if (site.status === 'ready') document.title = `${t('tabs.hallOfFame')} · ${brandName(site.creator)}`;
-  }, [site, t]);
+  useSeo('hof', { creator: site.creator }, site.status === 'ready');
 
   if (site.status === 'loading') return <Spinner fullPage />;
   if (site.status === 'error') {

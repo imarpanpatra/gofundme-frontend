@@ -39,10 +39,15 @@ export default function StudioHome() {
   }, []);
 
   useEffect(() => {
+    let alive = true;
     setData(null);
+    setError('');
     api(`/studio/overview?days=${days}`)
-      .then(setData)
-      .catch((err) => setError(err.message));
+      .then((d) => alive && setData(d))
+      .catch((err) => alive && setError(err.message));
+    return () => {
+      alive = false;
+    };
   }, [days]);
 
   return (

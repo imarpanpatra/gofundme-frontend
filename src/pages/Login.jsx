@@ -76,6 +76,9 @@ export default function Login() {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
+        <Link to="/forgot-password" state={{ email }} className="auth-forgot">
+          {t('auth.forgotLink')}
+        </Link>
         {error && <p className="form-error">{error}</p>}
         <button type="submit" className="support-btn" disabled={busy}>
           {busy ? <span className="dot-flashing" /> : t('header.login')}

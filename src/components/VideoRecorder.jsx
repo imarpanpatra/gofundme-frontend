@@ -26,13 +26,27 @@ export default function VideoRecorder({ onClose, onDone }) {
   const [error, setError] = useState('');
   const [seconds, setSeconds] = useState(0);
   const [clip, setClip] = useState(null);
+  const genRef = useRef(0);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   const stopStream = useCallback(() => {
     streamRef.current?.getTracks().forEach((t) => t.stop());
     streamRef.current = null;
   }, []);
 
+  const detachRecorder = useCallback(() => {
+    clearInterval(timerRef.current);
+    const rec = recorderRef.current;
+    recorderRef.current = null;
+    if (!rec) return;
+    rec.ondataavailable = null;
+    rec.onstop = null;
+    if (rec.state !== 'inactive') rec.stop();
+  }, []);
+
   const startCamera = useCallback(async () => {
+    const gen = ++genRef.current;
     setError('');
     setPhase('starting');
     if (!navigator.mediaDevices?.getUserMedia || pickMimeType() === null) {
@@ -45,29 +59,37 @@ export default function VideoRecorder({ onClose, onDone }) {
         video: { facingMode: 'user', width: { ideal: 480 }, height: { ideal: 854 } },
         audio: true,
       });
+      if (gen !== genRef.current) {
+        stream.getTracks().forEach((track) => track.stop());
+        return;
+      }
       streamRef.current = stream;
       if (liveRef.current) liveRef.current.srcObject = stream;
       setPhase('ready');
     } catch {
+      if (gen !== genRef.current) return;
       setError(t('recorder.blocked'));
       setPhase('error');
     }
   }, [t]);
 
+  const startRef = useRef(startCamera);
+  startRef.current = startCamera;
+
   useEffect(() => {
-    startCamera();
-    const onKey = (e) => e.key === 'Escape' && onClose();
+    startRef.current();
+    const onKey = (e) => e.key === 'Escape' && onCloseRef.current();
     document.addEventListener('keydown', onKey);
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     return () => {
       document.removeEventListener('keydown', onKey);
       document.body.style.overflow = prev;
-      clearInterval(timerRef.current);
-      if (recorderRef.current?.state === 'recording') recorderRef.current.stop();
+      genRef.current += 1;
+      detachRecorder();
       stopStream();
     };
-  }, [startCamera, stopStream, onClose]);
+  }, [detachRecorder, stopStream]);
 
   useEffect(() => () => clip && URL.revokeObjectURL(clip.url), [clip]);
 
@@ -92,6 +114,7 @@ export default function VideoRecorder({ onClose, onDone }) {
     });
     recorder.ondataavailable = (e) => e.data.size && chunksRef.current.push(e.data);
     recorder.onstop = () => {
+      if (recorderRef.current === recorder) recorderRef.current = null;
       const type = (recorder.mimeType || mimeType || 'video/webm').split(';')[0];
       const blob = new Blob(chunksRef.current, { type });
       stopStream();
@@ -121,6 +144,8 @@ export default function VideoRecorder({ onClose, onDone }) {
       setError(t('recorder.badType'));
       return;
     }
+    genRef.current += 1;
+    detachRecorder();
     stopStream();
     setClip({ blob: file, url: URL.createObjectURL(file), type: file.type });
     setError('');

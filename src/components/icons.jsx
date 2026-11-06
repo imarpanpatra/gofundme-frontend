@@ -144,6 +144,20 @@ export const SunIcon = make(
 
 export const MoonIcon = make(<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" />);
 
+export const PinIcon = make(
+  <>
+    <path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11Z" />
+    <circle cx="12" cy="10" r="2.3" />
+  </>
+);
+
+export const MapIcon = make(
+  <>
+    <path d="m9 4.5-5 2v13l5-2 6 2 5-2v-13l-5 2-6-2Z" />
+    <path d="M9 4.5v13M15 6.5v13" />
+  </>
+);
+
 export const HomeIcon = make(<path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1v-9.5Z" />);
 
 export const PageIcon = make(

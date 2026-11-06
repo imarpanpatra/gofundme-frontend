@@ -7,6 +7,7 @@ import { ToastProvider } from './context/ToastContext.jsx';
 import { I18nProvider } from './i18n/index.jsx';
 import './styles.css';
 import './features.css';
+import './extras.css';
 import './theme.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(

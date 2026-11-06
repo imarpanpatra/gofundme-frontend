@@ -51,7 +51,10 @@ export default function PageSettingsForm({ creator, onSaved, onCancel }) {
   const fileRef = useRef(null);
   const [name, setName] = useState(creator.name);
   const [siteName, setSiteName] = useState(creator.siteName || '');
+  const [slug, setSlug] = useState(creator.slug);
   const [mention, setMention] = useState(creator.mention || '');
+  const [destination, setDestination] = useState(creator.destination || '');
+  const [seoDescription, setSeoDescription] = useState(creator.seoDescription || '');
   const [links, setLinks] = useState(creator.links.join('\n'));
   const [themeColor, setThemeColor] = useState(creator.themeColor);
   const [amounts, setAmounts] = useState(creator.suggestedAmounts.map(String));
@@ -90,8 +93,11 @@ export default function PageSettingsForm({ creator, onSaved, onCancel }) {
         method: 'PUT',
         body: {
           name,
+          slug,
           siteName,
           mention,
+          destination,
+          seoDescription,
           about: editorRef.current.innerHTML,
           links: links.split('\n'),
           themeColor,
@@ -141,6 +147,28 @@ export default function PageSettingsForm({ creator, onSaved, onCancel }) {
         </div>
 
         <div className="field">
+          <label htmlFor="edit-slug">Page URL</label>
+          <div className="url-input">
+            <span aria-hidden="true">{window.location.host}/</span>
+            <input
+              id="edit-slug"
+              className="input-box input-sm"
+              maxLength={40}
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
+              value={slug}
+              onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+            />
+          </div>
+          <span className="field-hint">
+            {slug !== creator.slug
+              ? `Your page moves to /${slug || '…'}. The old address /${creator.slug} will stop working, so update any links you have shared.`
+              : 'Lowercase letters, numbers and hyphens.'}
+          </span>
+        </div>
+
+        <div className="field">
           <label htmlFor="edit-mention">Mention</label>
           <input
             id="edit-mention"
@@ -151,6 +179,37 @@ export default function PageSettingsForm({ creator, onSaved, onCancel }) {
             onChange={(e) => setMention(e.target.value)}
           />
           <span className="field-hint">Used in "Support …" and similar lines, like "Support Arpan's & Akshay's journey". Leave empty to use your name.</span>
+        </div>
+
+        <div className="field">
+          <label htmlFor="edit-destination">Trip destination</label>
+          <input
+            id="edit-destination"
+            className="input-box input-sm"
+            maxLength={40}
+            placeholder="e.g. Vietnam"
+            value={destination}
+            onChange={(e) => setDestination(e.target.value)}
+          />
+          <span className="field-hint">
+            {destination.trim()
+              ? `Search titles become "${destination.trim()} Trip: Itinerary, Travel Stories & Tips" and "${destination.trim()} Itinerary: Day-by-Day Trip Plan".`
+              : 'The country or place of your trip. Used in Google titles so people searching for it find your page.'}
+          </span>
+        </div>
+
+        <div className="field">
+          <label htmlFor="edit-seo-desc">Search description</label>
+          <textarea
+            id="edit-seo-desc"
+            className="input-box input-sm"
+            rows={3}
+            maxLength={160}
+            placeholder="One or two sentences shown under your page in Google results"
+            value={seoDescription}
+            onChange={(e) => setSeoDescription(e.target.value)}
+          />
+          <span className="field-hint">{seoDescription.length}/160. Leave empty to use the start of your About text.</span>
         </div>
 
         <div className="field">

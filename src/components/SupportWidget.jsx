@@ -9,7 +9,7 @@ import { useToast } from '../context/ToastContext.jsx';
 import { CloseIcon, InfoIcon, VideoIcon } from './icons.jsx';
 import { useI18n } from '../i18n/index.jsx';
 
-function Checkbox({ id, checked, onChange, children }) {
+export function Checkbox({ id, checked, onChange, children }) {
   return (
     <label className="checkbox" htmlFor={id}>
       <input id={id} type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} />
@@ -32,14 +32,19 @@ function Tip({ text, wide }) {
 
 const draftKey = (slug) => `gfm_support_draft:${slug}`;
 
-function takeDraft(slug) {
+function peekDraft(slug) {
   try {
     const raw = sessionStorage.getItem(draftKey(slug));
-    sessionStorage.removeItem(draftKey(slug));
     return raw ? JSON.parse(raw) : null;
   } catch {
     return null;
   }
+}
+
+function clearDraft(slug) {
+  try {
+    sessionStorage.removeItem(draftKey(slug));
+  } catch {}
 }
 
 function saveDraft(slug, draft) {
@@ -53,7 +58,10 @@ const SupportWidget = forwardRef(function SupportWidget({ creator, onSupported }
   const { t, tr } = useI18n();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-  const [draft] = useState(() => takeDraft(creator.slug));
+  const [draft] = useState(() => peekDraft(creator.slug));
+  useEffect(() => {
+    if (draft) clearDraft(creator.slug);
+  }, [draft, creator.slug]);
   const [amount, setAmount] = useState(draft?.amount ?? '');
   const [name, setName] = useState(draft?.name || user?.name || '');
   const [message, setMessage] = useState(draft?.message ?? '');
@@ -110,7 +118,8 @@ const SupportWidget = forwardRef(function SupportWidget({ creator, onSupported }
         setIsPrivate(false);
         setMonthly(false);
         setVideoUrl('');
-        onSupported?.(support);
+        if (support.pending) toast(t('pay.pending'));
+        else onSupported?.(support);
       }
     } catch (err) {
       if (err.status === 401) {

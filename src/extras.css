@@ -1,0 +1,548 @@
+.auth-forgot {
+  align-self: flex-end;
+  margin-top: -6px;
+  font-size: 13px;
+  color: var(--theme);
+  font-weight: 500;
+}
+
+.auth-done {
+  align-items: center;
+  text-align: center;
+}
+
+.auth-done-icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--theme-1);
+  color: var(--theme);
+}
+
+.auth-done .muted {
+  margin-bottom: 0;
+}
+
+.auth-small {
+  font-size: 13px;
+}
+
+.auth-done-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: 8px;
+  text-decoration: none;
+}
+
+.itinerary-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.itinerary-hero-icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: var(--theme-1);
+  color: var(--theme);
+}
+
+.itinerary {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.itinerary-day {
+  position: relative;
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: 16px;
+  padding-bottom: 16px;
+}
+
+.itinerary-day::before {
+  content: '';
+  position: absolute;
+  left: 47px;
+  top: 40px;
+  bottom: -8px;
+  width: 2px;
+  background: var(--theme-25);
+}
+
+.itinerary-day:last-child::before {
+  display: none;
+}
+
+.itinerary-marker {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.itinerary-marker span {
+  position: sticky;
+  top: calc(var(--header-h) + 16px);
+  align-self: flex-start;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: var(--theme);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.itinerary-moments {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.moment-card {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+}
+
+.moment-card.is-funded {
+  box-shadow: inset 0 0 0 2px var(--theme-25), var(--shadow-box);
+}
+
+.moment-img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 7;
+  object-fit: cover;
+  background: var(--surface-2);
+}
+
+.moment-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 20px 24px 22px;
+}
+
+.moment-title {
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.moment-place {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.moment-desc {
+  color: var(--text-2);
+  line-height: 1.6;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.moment-fund {
+  margin-top: 6px;
+}
+
+.moment-fund .goal-bar {
+  margin: 8px 0 12px;
+}
+
+.moment-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 14px;
+}
+
+.moment-funded {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--theme-1);
+  color: var(--theme);
+  font-weight: 700;
+}
+
+.sponsor-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sponsor-moment {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding: 12px;
+  border-radius: 16px;
+  background: var(--surface-2);
+}
+
+.sponsor-moment img {
+  width: 72px;
+  height: 72px;
+  flex: none;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.sponsor-moment-day {
+  color: var(--theme);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.sponsor-moment-title {
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.sponsor-moment .muted {
+  font-size: 14px;
+}
+
+.sponsor-amount {
+  margin-top: 0;
+}
+
+.sponsor-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: -4px;
+}
+
+.chip.chip-on {
+  border-color: var(--theme);
+  color: var(--theme);
+  background: var(--theme-1);
+}
+
+.profile-main {
+  max-width: 760px;
+}
+
+.profile-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.profile-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+.profile-avatar {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: var(--theme-1);
+  color: var(--theme);
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.profile-id {
+  flex: 1;
+  min-width: 0;
+}
+
+.profile-id h1 {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.profile-bio {
+  margin: 8px 0 4px;
+  color: var(--text-2);
+  overflow-wrap: anywhere;
+}
+
+.profile-edit {
+  flex: none;
+}
+
+.profile-hero .hof-stats {
+  margin-top: 0;
+}
+
+.profile-private {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+}
+
+.profile-note {
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--theme-1);
+  color: var(--text-2);
+  font-size: 14px;
+}
+
+.dash-head-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.dash-head-row .dash-h2 {
+  margin-bottom: 0;
+}
+
+.profile-settings {
+  scroll-margin-top: calc(var(--header-h) + 16px);
+}
+
+.at-input {
+  position: relative;
+}
+
+.at-input span {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.at-input .input-box {
+  padding-left: 30px;
+}
+
+.dash-moment {
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.studio-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.studio-title-row .studio-title {
+  margin: 0;
+}
+
+.studio-title-row .pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.itinerary-summary p {
+  font-size: 15px;
+}
+
+.itinerary-summary .goal-bar {
+  margin-bottom: 0;
+}
+
+.studio-moments {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.studio-moment {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--grey-e5);
+}
+
+.studio-moment:last-child {
+  border-bottom: 0;
+}
+
+.studio-moment.is-archived {
+  opacity: 0.55;
+}
+
+.studio-moment-day {
+  flex: none;
+  width: 60px;
+  color: var(--theme);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.studio-moment img,
+.studio-moment-ph {
+  flex: none;
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.studio-moment-ph {
+  display: grid;
+  place-items: center;
+  background: var(--theme-1);
+  color: var(--theme);
+}
+
+.studio-moment-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.studio-moment-body .product-title {
+  margin-top: 0;
+}
+
+@media (max-width: 640px) {
+  .itinerary-day {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .itinerary-day::before {
+    display: none;
+  }
+
+  .itinerary-marker {
+    justify-content: flex-start;
+  }
+
+  .itinerary-marker span {
+    position: static;
+  }
+
+  .moment-body {
+    padding: 16px 18px 18px;
+  }
+
+  .profile-top {
+    flex-wrap: wrap;
+  }
+
+  .profile-avatar {
+    width: 60px;
+    height: 60px;
+    font-size: 22px;
+  }
+
+  .profile-edit {
+    order: 3;
+  }
+
+  .studio-moment {
+    flex-wrap: wrap;
+  }
+
+  .studio-moment-day {
+    width: 100%;
+  }
+
+  .studio-moment .row-actions {
+    width: 100%;
+  }
+}
+
+.url-input {
+  display: flex;
+  align-items: center;
+  border-radius: 12px;
+  background: var(--grey-f0);
+  overflow: hidden;
+}
+
+.url-input span {
+  flex: none;
+  max-width: 55%;
+  padding-left: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.url-input .input-box {
+  flex: 1;
+  min-width: 0;
+  padding-left: 2px;
+}
+
+.cover-wrap {
+  z-index: 0;
+  background: transparent;
+}
+
+.cover-wrap .cover-image {
+  position: relative;
+  will-change: transform, opacity;
+}
+
+.cover-wrap .change-cover {
+  z-index: 1;
+}
+
+.cover-wrap ~ .content,
+.cover-wrap ~ .mobile-profile {
+  z-index: 1;
+}
+
+.code-input {
+  text-align: center;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 8px;
+}
+
+.code-input::placeholder {
+  letter-spacing: normal;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.auth-switch .text-link:disabled {
+  color: var(--muted);
+  cursor: default;
+}

@@ -5,10 +5,12 @@ import Spinner from '../components/Spinner.jsx';
 import { LockBadge } from '../components/PostCard.jsx';
 import { ChatIcon, EyeIcon, HeartIcon, ShareIcon, TrashIcon } from '../components/icons.jsx';
 import { api } from '../lib/api.js';
-import { brandName, mentionOf, initials, shortDate, timeAgo } from '../lib/format.js';
+import useSeo from '../seo/useSeo.js';
+import { mentionOf, initials, shortDate, timeAgo } from '../lib/format.js';
 import { useShare } from '../lib/useShare.js';
 import { useToast } from '../context/ToastContext.jsx';
 import { useI18n } from '../i18n/index.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
 
 function LockedPanel({ post, creator, user, from }) {
   const { t } = useI18n();
@@ -158,16 +160,22 @@ function PostView({ creator, user, isOwner }) {
   const [post, setPost] = useState(null);
   const [error, setError] = useState('');
   const commentsRef = useRef(null);
+  const likeBusy = useRef(false);
+  const { ready } = useAuth();
+  useSeo('post', { creator, post }, Boolean(post));
 
   useEffect(() => {
+    if (!ready) return undefined;
+    let alive = true;
     setPost(null);
+    setError('');
     api(`/posts/${creator.slug}/${postSlug}`)
-      .then((d) => {
-        setPost(d.post);
-        document.title = `${d.post.title} · ${brandName(creator)}`;
-      })
-      .catch((err) => setError(err.status === 404 ? t('post.missing') : err.message));
-  }, [creator.slug, creator.name, postSlug, user?.id, user?.slug, t]);
+      .then((d) => alive && setPost(d.post))
+      .catch((err) => alive && setError(err.status === 404 ? t('post.missing') : err.message));
+    return () => {
+      alive = false;
+    };
+  }, [ready, creator.slug, postSlug, user?.id, user?.slug, t]);
 
   if (error) {
     return (
@@ -186,11 +194,15 @@ function PostView({ creator, user, isOwner }) {
       toast(t('post.loginToLike'));
       return;
     }
+    if (likeBusy.current) return;
+    likeBusy.current = true;
     try {
       const d = await api(`/posts/${creator.slug}/${post.slug}/like`, { method: 'POST', body: {} });
       setPost((p) => ({ ...p, liked: d.liked, likeCount: d.likeCount }));
     } catch (err) {
       toast(err.message, 'error');
+    } finally {
+      likeBusy.current = false;
     }
   };
 
@@ -248,9 +260,8 @@ function PostView({ creator, user, isOwner }) {
 }
 
 export default function PostPage() {
-  const { t } = useI18n();
   return (
-    <CreatorShell tab="posts" title={t('post.title')}>
+    <CreatorShell tab="posts" seo={false}>
       {({ creator, user, isOwner }) => <PostView creator={creator} user={user} isOwner={isOwner} />}
     </CreatorShell>
   );

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useParams } from 'react-router-dom';
 import CreatorPage from './pages/CreatorPage.jsx';
 import Login from './pages/Login.jsx';
 import Signup from './pages/Signup.jsx';
@@ -22,6 +22,11 @@ import NotFound from './pages/NotFound.jsx';
 import Policy from './pages/Policy.jsx';
 import About from './pages/About.jsx';
 import Contact from './pages/Contact.jsx';
+import ForgotPassword from './pages/ForgotPassword.jsx';
+import ResetPassword from './pages/ResetPassword.jsx';
+import ItineraryPage from './pages/ItineraryPage.jsx';
+import ProfilePage from './pages/ProfilePage.jsx';
+import StudioItinerary from './pages/studio/StudioItinerary.jsx';
 import Spinner from './components/Spinner.jsx';
 import { api } from './lib/api.js';
 
@@ -40,12 +45,20 @@ function Home() {
   return <Navigate to={`/${slug}`} replace />;
 }
 
+function SlugRoute() {
+  const { slug } = useParams();
+  if (slug.startsWith('@')) return <ProfilePage username={slug.slice(1)} />;
+  return <CreatorPage />;
+}
+
 export default function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/account" element={<AccountPage />} />
       <Route path="/dashboard/posts/new" element={<PostEditor />} />
       <Route path="/dashboard/posts/:id/edit" element={<PostEditor />} />
@@ -54,6 +67,7 @@ export default function App() {
         <Route path="supporters" element={<StudioSupporters />} />
         <Route path="memberships" element={<StudioMemberships />} />
         <Route path="shop" element={<StudioShop />} />
+        <Route path="itinerary" element={<StudioItinerary />} />
         <Route path="posts" element={<StudioPosts />} />
         <Route path="messages" element={<StudioMessages />} />
         <Route path="settings" element={<StudioSettings />} />
@@ -67,7 +81,8 @@ export default function App() {
       <Route path="/return-policy" element={<Policy kind="return" />} />
       <Route path="/shipping-policy" element={<Policy kind="return" />} />
       <Route path="/disclaimer" element={<Policy kind="disclaimer" />} />
-      <Route path="/:slug" element={<CreatorPage />} />
+      <Route path="/:slug" element={<SlugRoute />} />
+      <Route path="/:slug/itinerary" element={<ItineraryPage />} />
       <Route path="/:slug/posts" element={<PostsPage />} />
       <Route path="/:slug/posts/:postSlug" element={<PostPage />} />
       <Route path="/:slug/membership" element={<MembershipPage />} />

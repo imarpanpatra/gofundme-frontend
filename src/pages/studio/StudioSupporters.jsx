@@ -17,6 +17,7 @@ const STATUSES = [
   ['paid', 'Successful'],
   ['created', 'Pending'],
   ['failed', 'Failed'],
+  ['refunded', 'Refunded'],
 ];
 
 function peopleLabel(type, n) {
@@ -31,12 +32,16 @@ export function TransactionsPanel({ type, title }) {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    let alive = true;
     setData(null);
     setError('');
     const q = new URLSearchParams({ status, page: String(page), ...(type ? { type } : {}) });
     api(`/studio/transactions?${q}`)
-      .then(setData)
-      .catch((err) => setError(err.message));
+      .then((d) => alive && setData(d))
+      .catch((err) => alive && setError(err.message));
+    return () => {
+      alive = false;
+    };
   }, [type, status, page]);
 
   return (

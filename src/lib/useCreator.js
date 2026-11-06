@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { api } from './api.js';
 
 const cache = new Map();
@@ -12,13 +12,18 @@ export function useCreator(slug) {
     cache.has(slug) ? { status: 'ready', creator: cache.get(slug) } : { status: 'loading' }
   );
 
+  const current = useRef(slug);
+  current.current = slug;
+
   const load = useCallback(() => {
     api(`/pages/${slug}/profile`)
       .then((d) => {
         cache.set(slug, d.creator);
-        setState({ status: 'ready', creator: d.creator });
+        if (current.current === slug) setState({ status: 'ready', creator: d.creator });
       })
-      .catch((err) => setState({ status: err.status === 404 ? 'missing' : 'error', message: err.message }));
+      .catch((err) => {
+        if (current.current === slug) setState({ status: err.status === 404 ? 'missing' : 'error', message: err.message });
+      });
   }, [slug]);
 
   useEffect(() => {

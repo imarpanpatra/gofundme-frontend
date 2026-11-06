@@ -23,6 +23,7 @@ import { prepareImage } from '../../lib/image.js';
 import { themeVars } from '../../lib/format.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
+import { useNoindex } from '../../seo/useSeo.js';
 
 const VIS_ICON = { public: <GlobeIcon width={18} height={18} />, followers: <UsersIcon width={18} height={18} />, supporters: <HeartIcon width={18} height={18} fill="currentColor" /> };
 
@@ -76,7 +77,10 @@ export default function PostEditor() {
   const [newCategory, setNewCategory] = useState('');
   const [addingCategory, setAddingCategory] = useState(false);
   const [busy, setBusy] = useState(false);
+  const busyRef = useRef(false);
+  const savedIdRef = useRef(null);
   const [uploading, setUploading] = useState(false);
+  useNoindex();
   const [dirty, setDirty] = useState(false);
   const [empty, setEmpty] = useState(true);
 
@@ -86,7 +90,7 @@ export default function PostEditor() {
     api('/studio/posts')
       .then((d) => setAllCategories(d.categories))
       .catch(() => {});
-    if (!id) return;
+    if (!id || id === savedIdRef.current) return;
     api(`/studio/posts/${id}`)
       .then(({ post: p }) => {
         setPost(p);
@@ -102,7 +106,7 @@ export default function PostEditor() {
   }, [id, isCreator]);
 
   useEffect(() => {
-    if (loaded && bodyRef.current) {
+    if (loaded && bodyRef.current && !(post?.id && post.id === savedIdRef.current)) {
       bodyRef.current.innerHTML = post?.html || '';
       setEmpty(!bodyRef.current.textContent.trim() && !bodyRef.current.querySelector('img,iframe'));
     }
@@ -175,7 +179,7 @@ export default function PostEditor() {
       toast(err.message, 'error');
     } finally {
       setUploading(false);
-      imageInput.current.value = '';
+      if (imageInput.current) imageInput.current.value = '';
     }
   };
 
@@ -199,6 +203,8 @@ export default function PostEditor() {
       toast('Give your post a title', 'error');
       return;
     }
+    if (busyRef.current) return;
+    busyRef.current = true;
     setBusy(true);
     try {
       const body = { title, html: bodyRef.current.innerHTML, visibility, categories, status };
@@ -211,12 +217,14 @@ export default function PostEditor() {
         navigate(`/${user.slug}/posts/${saved.slug}`);
       } else {
         toast('Draft saved');
+        if (!id) savedIdRef.current = saved.id;
         setPost(saved);
         if (!id) navigate(`/dashboard/posts/${saved.id}/edit`, { replace: true });
       }
     } catch (err) {
       toast(err.message, 'error');
     } finally {
+      busyRef.current = false;
       setBusy(false);
     }
   };
