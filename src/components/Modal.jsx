@@ -1,8 +1,10 @@
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { CloseIcon } from './icons.jsx';
+import { useI18n } from '../i18n/index.jsx';
 
 export default function Modal({ title, onClose, children, footer, width = 560, style }) {
+  const { t } = useI18n();
   useEffect(() => {
     const onKey = (e) => e.key === 'Escape' && onClose();
     document.addEventListener('keydown', onKey);
@@ -19,7 +21,7 @@ export default function Modal({ title, onClose, children, footer, width = 560, s
       <div className="modal" role="dialog" aria-modal="true" aria-label={title} style={{ maxWidth: width, ...style }}>
         <div className="modal-head">
           <h2>{title}</h2>
-          <button type="button" className="icon-btn" onClick={onClose} aria-label="Close">
+          <button type="button" className="icon-btn" onClick={onClose} aria-label={t('common.close')}>
             <CloseIcon />
           </button>
         </div>

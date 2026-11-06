@@ -5,6 +5,7 @@ export const POLICIES_UPDATED = '6 November 2026';
 export function contextFor(creator) {
   return {
     name: creator.name,
+    brand: creator.siteName.replace(/^[\p{Extended_Pictographic}️‍\s]+/u, '') || creator.name,
     owner: creator.contact.legalName || creator.name,
     email: creator.contact.email,
     phone: creator.contact.phone,
@@ -22,9 +23,9 @@ export function ContactBlock({ ctx, showFormLink = true }) {
       <li>
         <strong>Name:</strong> {ctx.owner}
       </li>
-      {ctx.owner !== ctx.name && (
+      {ctx.owner !== ctx.brand && (
         <li>
-          <strong>Brand name:</strong> {ctx.name}
+          <strong>Brand name:</strong> {ctx.brand}
         </li>
       )}
       {ctx.email && (
@@ -57,7 +58,7 @@ const Mail = ({ ctx }) =>
 const Operator = ({ ctx }) => (
   <>
     {ctx.owner}
-    {ctx.owner !== ctx.name && <> (brand name "{ctx.name}")</>}
+    {ctx.owner !== ctx.brand && <> (brand name "{ctx.brand}")</>}
   </>
 );
 

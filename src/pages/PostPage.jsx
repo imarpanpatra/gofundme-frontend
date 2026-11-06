@@ -5,23 +5,25 @@ import Spinner from '../components/Spinner.jsx';
 import { LockBadge } from '../components/PostCard.jsx';
 import { ChatIcon, EyeIcon, HeartIcon, ShareIcon, TrashIcon } from '../components/icons.jsx';
 import { api } from '../lib/api.js';
-import { initials, shortDate, timeAgo } from '../lib/format.js';
+import { brandName, mentionOf, initials, shortDate, timeAgo } from '../lib/format.js';
 import { useShare } from '../lib/useShare.js';
 import { useToast } from '../context/ToastContext.jsx';
+import { useI18n } from '../i18n/index.jsx';
 
 function LockedPanel({ post, creator, user, from }) {
-  const authState = { from, reason: `Log in to read "${post.title}".` };
+  const { t } = useI18n();
+  const authState = { from, reason: t('post.loginToRead', { title: post.title }) };
   if (post.visibility === 'followers') {
     return (
       <div className="locked-panel">
         <LockBadge visibility="followers" size={30} />
-        <Link to="/signup" state={{ ...authState, reason: `Create a free account to read "${post.title}".` }} className="locked-btn">
-          Join for free
+        <Link to="/signup" state={{ ...authState, reason: t('post.signupToRead', { title: post.title }) }} className="locked-btn">
+          {t('post.joinFree')}
         </Link>
         <p>
-          Already a follower?{' '}
+          {t('post.alreadyFollower')}{' '}
           <Link to="/login" state={authState}>
-            Log in
+            {t('header.login')}
           </Link>
         </p>
       </div>
@@ -30,22 +32,22 @@ function LockedPanel({ post, creator, user, from }) {
   return (
     <div className="locked-panel">
       <LockBadge visibility="supporters" size={30} />
-      <p className="locked-sub">Support {creator.name} to unlock this post.</p>
+      <p className="locked-sub">{t('post.supportToUnlock', { name: mentionOf(creator) })}</p>
       <div className="locked-actions">
         <Link to={`/${creator.slug}`} className="locked-btn">
-          {creator.supportButtonText} {creator.name}
+          {creator.supportButtonText === 'Support' ? t('support.title', { name: mentionOf(creator) }) : `${creator.supportButtonText} ${creator.name}`}
         </Link>
         {creator.tabs?.membership && (
           <Link to={`/${creator.slug}/membership`} className="locked-btn locked-btn-ghost">
-            Become a member
+            {t('post.becomeMember')}
           </Link>
         )}
       </div>
       {!user && (
         <p>
-          Already a supporter?{' '}
+          {t('post.alreadySupporter')}{' '}
           <Link to="/login" state={authState}>
-            Log in
+            {t('header.login')}
           </Link>
         </p>
       )}
@@ -55,6 +57,7 @@ function LockedPanel({ post, creator, user, from }) {
 
 function Comments({ creator, post, user, from }) {
   const toast = useToast();
+  const { t } = useI18n();
   const [comments, setComments] = useState(null);
   const [text, setText] = useState('');
   const [busy, setBusy] = useState(false);
@@ -92,34 +95,34 @@ function Comments({ creator, post, user, from }) {
 
   return (
     <section className="comments" id="comments">
-      <h2>Comments {comments?.length > 0 && <span className="hof-count">{comments.length}</span>}</h2>
+      <h2>{t('post.comments')} {comments?.length > 0 && <span className="hof-count">{comments.length}</span>}</h2>
       {user ? (
         <form className="comment-form" onSubmit={submit}>
           <span className="supporter-avatar">{initials(user.name)}</span>
           <textarea
             className="input-box input-sm"
-            placeholder="Write a comment…"
+            placeholder={t('post.writeComment')}
             rows={2}
             maxLength={1000}
             value={text}
             onChange={(e) => setText(e.target.value)}
           />
           <button type="submit" className="pill-btn pill-theme" disabled={busy || !text.trim()}>
-            {busy ? <Spinner small /> : 'Post'}
+            {busy ? <Spinner small /> : t('post.postButton')}
           </button>
         </form>
       ) : (
         <p className="muted">
           <Link to="/login" state={{ from }} className="text-theme">
-            Log in
+            {t('header.login')}
           </Link>{' '}
-          to join the conversation.
+          {t('post.toJoin')}
         </p>
       )}
       {comments === null ? (
         <Spinner />
       ) : comments.length === 0 ? (
-        <p className="muted">No comments yet.</p>
+        <p className="muted">{t('post.noComments')}</p>
       ) : (
         <ul className="comment-list">
           {comments.map((c) => (
@@ -128,13 +131,13 @@ function Comments({ creator, post, user, from }) {
               <div className="comment-main">
                 <p>
                   <strong>{c.name}</strong>
-                  {c.isCreator && <span className="badge">Creator</span>}
+                  {c.isCreator && <span className="badge">{t('post.creator')}</span>}
                   <span className="supporter-time"> · {timeAgo(c.createdAt)}</span>
                 </p>
                 <p className="comment-text">{c.text}</p>
               </div>
               {c.canDelete && (
-                <button type="button" className="icon-btn" onClick={() => remove(c.id)} aria-label="Delete comment">
+                <button type="button" className="icon-btn" onClick={() => remove(c.id)} aria-label={t('post.deleteComment')}>
                   <TrashIcon width={16} height={16} />
                 </button>
               )}
@@ -150,6 +153,7 @@ function PostView({ creator, user, isOwner }) {
   const { postSlug } = useParams();
   const location = useLocation();
   const toast = useToast();
+  const { t } = useI18n();
   const share = useShare();
   const [post, setPost] = useState(null);
   const [error, setError] = useState('');
@@ -160,17 +164,17 @@ function PostView({ creator, user, isOwner }) {
     api(`/posts/${creator.slug}/${postSlug}`)
       .then((d) => {
         setPost(d.post);
-        document.title = `${d.post.title} · ${creator.name}`;
+        document.title = `${d.post.title} · ${brandName(creator)}`;
       })
-      .catch((err) => setError(err.status === 404 ? 'This post does not exist or is no longer available.' : err.message));
-  }, [creator.slug, creator.name, postSlug, user?.id, user?.slug]);
+      .catch((err) => setError(err.status === 404 ? t('post.missing') : err.message));
+  }, [creator.slug, creator.name, postSlug, user?.id, user?.slug, t]);
 
   if (error) {
     return (
       <div className="post-wrap">
         <p className="muted">{error}</p>
         <Link to={`/${creator.slug}/posts`} className="text-theme">
-          ← All posts
+          ← {t('post.allPosts')}
         </Link>
       </div>
     );
@@ -179,7 +183,7 @@ function PostView({ creator, user, isOwner }) {
 
   const like = async () => {
     if (!user) {
-      toast('Log in to like posts');
+      toast(t('post.loginToLike'));
       return;
     }
     try {
@@ -192,10 +196,10 @@ function PostView({ creator, user, isOwner }) {
 
   return (
     <article className="post-wrap">
-      <nav className="breadcrumb" aria-label="Breadcrumb">
+      <nav className="breadcrumb" aria-label={t('post.breadcrumb')}>
         <Link to={`/${creator.slug}`}>{creator.name}</Link>
         <span>›</span>
-        <Link to={`/${creator.slug}/posts`}>Posts</Link>
+        <Link to={`/${creator.slug}/posts`}>{t('tabs.posts')}</Link>
         <span>›</span>
         <span className="muted">{post.title}</span>
       </nav>
@@ -206,12 +210,12 @@ function PostView({ creator, user, isOwner }) {
         <EyeIcon width={16} height={16} /> {post.views}
         {isOwner && (
           <Link to="/dashboard/posts" className="text-theme post-edit-link">
-            Manage posts
+            {t('post.manage')}
           </Link>
         )}
       </p>
       <div className="post-actions">
-        <button type="button" className={`round-btn${post.liked ? ' is-liked' : ''}`} onClick={like} disabled={post.locked} aria-label="Like">
+        <button type="button" className={`round-btn${post.liked ? ' is-liked' : ''}`} onClick={like} disabled={post.locked} aria-label={t('post.like')}>
           <HeartIcon width={20} height={20} fill={post.liked ? 'currentColor' : 'none'} />
           {post.likeCount > 0 && <span>{post.likeCount}</span>}
         </button>
@@ -220,13 +224,13 @@ function PostView({ creator, user, isOwner }) {
           className="round-btn"
           onClick={() => commentsRef.current?.scrollIntoView({ behavior: 'smooth' })}
           disabled={post.locked}
-          aria-label="Comments"
+          aria-label={t('post.comments')}
         >
           <ChatIcon width={20} height={20} />
           {post.commentCount > 0 && <span>{post.commentCount}</span>}
         </button>
         <button type="button" className="pill-btn pill-outline share-btn" onClick={() => share(window.location.href, post.title)}>
-          <ShareIcon width={18} height={18} /> Share
+          <ShareIcon width={18} height={18} /> {t('header.share')}
         </button>
       </div>
       {post.locked ? (
@@ -244,8 +248,9 @@ function PostView({ creator, user, isOwner }) {
 }
 
 export default function PostPage() {
+  const { t } = useI18n();
   return (
-    <CreatorShell tab="posts" title="Post">
+    <CreatorShell tab="posts" title={t('post.title')}>
       {({ creator, user, isOwner }) => <PostView creator={creator} user={user} isOwner={isOwner} />}
     </CreatorShell>
   );

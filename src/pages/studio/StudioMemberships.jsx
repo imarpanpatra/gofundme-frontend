@@ -3,6 +3,7 @@ import Modal from '../../components/Modal.jsx';
 import Spinner from '../../components/Spinner.jsx';
 import { ArrowRightIcon, CheckIcon, LockIcon, StarIcon } from '../../components/icons.jsx';
 import { api } from '../../lib/api.js';
+import { MIN_AMOUNT } from '../../lib/checkout.js';
 import { formatMoney, shortDate, initials } from '../../lib/format.js';
 import { useToast } from '../../context/ToastContext.jsx';
 
@@ -42,7 +43,7 @@ function TierModal({ tier, onClose, onSaved }) {
           </div>
           <div className="field">
             <label htmlFor="tier-price">Price per month (₹)</label>
-            <input id="tier-price" className="input-box input-sm" type="number" min="1" placeholder="499" value={form.price} onChange={set('price')} />
+            <input id="tier-price" className="input-box input-sm" type="number" min={MIN_AMOUNT} placeholder="499" value={form.price} onChange={set('price')} />
           </div>
         </div>
         <div className="field">

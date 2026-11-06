@@ -2,11 +2,12 @@ import { forwardRef, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { api } from '../lib/api.js';
-import { payWith } from '../lib/checkout.js';
+import { MIN_AMOUNT, payWith } from '../lib/checkout.js';
 import VideoRecorder from './VideoRecorder.jsx';
-import { currencySymbol, formatNumber } from '../lib/format.js';
+import { currencySymbol, formatNumber, mentionOf } from '../lib/format.js';
 import { useToast } from '../context/ToastContext.jsx';
 import { CloseIcon, InfoIcon, VideoIcon } from './icons.jsx';
+import { useI18n } from '../i18n/index.jsx';
 
 function Checkbox({ id, checked, onChange, children }) {
   return (
@@ -49,6 +50,7 @@ function saveDraft(slug, draft) {
 
 const SupportWidget = forwardRef(function SupportWidget({ creator, onSupported }, ref) {
   const toast = useToast();
+  const { t, tr } = useI18n();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [draft] = useState(() => takeDraft(creator.slug));
@@ -82,12 +84,12 @@ const SupportWidget = forwardRef(function SupportWidget({ creator, onSupported }
 
   const submit = async (e) => {
     e.preventDefault();
-    if (!hasAmount || value < 1) {
-      toast(`Enter an amount of at least ${symbol}1`, 'error');
+    if (!hasAmount || value < MIN_AMOUNT) {
+      toast(t('support.minAmount', { amount: `${symbol}${MIN_AMOUNT}` }), 'error');
       return;
     }
     if (!user) {
-      goToAuth('/signup', `Create a free account to support ${creator.name}. Your amount and message are saved.`);
+      goToAuth('/signup', t('support.needAccount', { name: mentionOf(creator) }));
       return;
     }
     setBusy(true);
@@ -113,7 +115,7 @@ const SupportWidget = forwardRef(function SupportWidget({ creator, onSupported }
     } catch (err) {
       if (err.status === 401) {
         logout();
-        goToAuth('/login', 'Your session expired. Log in again to finish your support. Your amount and message are saved.');
+        goToAuth('/login', t('support.sessionExpired'));
         return;
       }
       toast(err.message, 'error');
@@ -124,15 +126,15 @@ const SupportWidget = forwardRef(function SupportWidget({ creator, onSupported }
 
   const openRecorder = () => {
     if (!user) {
-      goToAuth('/signup', `Create a free account to send ${creator.name} a video message. Your amount and message are saved.`);
+      goToAuth('/signup', t('support.needAccountVideo', { name: creator.name }));
       return;
     }
     setRecording(true);
   };
 
   return (
-    <section className="feature-box support-box" aria-label={`Support ${creator.name}`} ref={ref} id="support">
-      <h1 className="support-title">Support {creator.name}</h1>
+    <section className="feature-box support-box" aria-label={t('support.title', { name: mentionOf(creator) })} ref={ref} id="support">
+      <h1 className="support-title">{t('support.title', { name: mentionOf(creator) })}</h1>
 
       <form onSubmit={submit} noValidate>
         <div className="amount-field">
@@ -144,9 +146,9 @@ const SupportWidget = forwardRef(function SupportWidget({ creator, onSupported }
             className="input-box amount-input"
             type="number"
             inputMode="decimal"
-            min="1"
+            min={MIN_AMOUNT}
             step="any"
-            placeholder="Enter amount"
+            placeholder={t('support.amountPlaceholder')}
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             onWheel={(e) => e.currentTarget.blur()}
@@ -164,7 +166,7 @@ const SupportWidget = forwardRef(function SupportWidget({ creator, onSupported }
           <input
             className="input-box input-sm"
             type="text"
-            placeholder="Name or @yoursocial"
+            placeholder={t('support.namePlaceholder')}
             autoComplete="name"
             maxLength={60}
             value={name}
@@ -175,12 +177,12 @@ const SupportWidget = forwardRef(function SupportWidget({ creator, onSupported }
             onFocus={() => setNameFocused(true)}
             onBlur={() => setNameFocused(false)}
           />
-          <div className={`name-hint${nameFocused ? ' show' : ''}`}>Using @username will link to your social profile</div>
+          <div className={`name-hint${nameFocused ? ' show' : ''}`}>{t('support.nameHint')}</div>
         </div>
 
         <div className="message-field">
           <textarea
-            placeholder="Say something nice..."
+            placeholder={t('support.messagePlaceholder')}
             maxLength={1000}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
@@ -188,57 +190,60 @@ const SupportWidget = forwardRef(function SupportWidget({ creator, onSupported }
           {videoUrl ? (
             <div className="video-attached">
               <video src={videoUrl} muted playsInline preload="metadata" />
-              <span>Video message attached</span>
-              <button type="button" className="icon-btn" onClick={() => setVideoUrl('')} aria-label="Remove video message">
+              <span>{t('support.videoAttached')}</span>
+              <button type="button" className="icon-btn" onClick={() => setVideoUrl('')} aria-label={t('support.removeVideo')}>
                 <CloseIcon width={16} height={16} />
               </button>
             </div>
           ) : (
-            <button type="button" className="video-toggle" onClick={openRecorder} aria-label="Add a video message">
+            <button type="button" className="video-toggle" onClick={openRecorder} aria-label={t('support.addVideo')}>
               <VideoIcon width={18} height={18} />
-              <span className="video-toggle-text">Add a video message</span>
+              <span className="video-toggle-text">{t('support.addVideo')}</span>
             </button>
           )}
         </div>
 
         <div className={`private-row${message.trim() ? ' show' : ''}`} aria-hidden={!message.trim()}>
           <Checkbox id="makeMsgPrivate" checked={isPrivate} onChange={setIsPrivate}>
-            Make this message private
+            {t('support.private')}
           </Checkbox>
-          <Tip text="The message will be visible to you and the creator only" />
+          <Tip text={t('support.privateTip')} />
         </div>
 
         {creator.recurringEnabled && (
           <div className="monthly-row">
             <Checkbox id="doMonthlySupport" checked={monthly} onChange={setMonthly}>
-              Make this monthly
+              {t('support.monthly')}
             </Checkbox>
-            <Tip wide text={`Support monthly and be a part of ${creator.name}'s creative journey. Cancel anytime.`} />
+            <Tip wide text={t('support.monthlyTip', { name: creator.name })} />
           </div>
         )}
 
         <button type="submit" className="support-btn" disabled={busy} aria-busy={busy}>
           {busy ? (
-            <span className="dot-flashing" aria-label="Processing" />
+            <span className="dot-flashing" aria-label={t('common.processing')} />
           ) : (
             <>
-              {creator.supportButtonText}
+              {creator.supportButtonText === 'Support' ? t('support.button') : creator.supportButtonText}
               {hasAmount && ` ${symbol}${formatNumber(monthly ? Math.round(value) : value)}`}
-              {monthly && <span className="per-month">/month</span>}
+              {monthly && <span className="per-month">{t('common.perMonth')}</span>}
             </>
           )}
         </button>
         {!user && (
           <p className="support-account-note">
-            You'll need a free account to support.{' '}
+            {t('support.accountNote')}{' '}
             <Link to="/login" state={{ from: `/${creator.slug}` }} onClick={() => saveDraft(creator.slug, { amount, name, message, isPrivate, monthly })}>
-              Log in
+              {t('header.login')}
             </Link>
           </p>
         )}
         <p className="support-legal">
-          By supporting, you agree to the <Link to="/terms">Terms</Link>, <Link to="/privacy">Privacy Policy</Link> and{' '}
-          <Link to="/refund-policy">Refund Policy</Link>.
+          {tr('support.legal', {
+            terms: (s) => <Link to="/terms">{s}</Link>,
+            privacy: (s) => <Link to="/privacy">{s}</Link>,
+            refund: (s) => <Link to="/refund-policy">{s}</Link>,
+          })}
         </p>
       </form>
       {recording && (

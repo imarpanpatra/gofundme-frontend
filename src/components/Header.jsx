@@ -1,16 +1,18 @@
 import { assetUrl } from '../lib/api.js';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Dropdown, { DropdownItem } from './Dropdown.jsx';
-import { MenuIcon, MoreIcon, PlusIcon, ShareIcon, TrophyIcon } from './icons.jsx';
+import { GlobeIcon, MenuIcon, MoreIcon, PlusIcon, ShareIcon, TrophyIcon } from './icons.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useShare } from '../lib/useShare.js';
 import { initials } from '../lib/format.js';
+import { LanguageSwitcher, useI18n } from '../i18n/index.jsx';
 
 function AccountMenu({ user, isCreator, logout, children }) {
+  const { t } = useI18n();
   return (
     <Dropdown
       trigger={({ toggle, open }) => (
-        <button type="button" className="menu-pill" onClick={toggle} aria-haspopup="menu" aria-expanded={open} aria-label="Account menu">
+        <button type="button" className="menu-pill" onClick={toggle} aria-haspopup="menu" aria-expanded={open} aria-label={t('header.accountMenu')}>
           <MenuIcon />
           {user.avatar ? (
             <img src={assetUrl(user.avatar)} alt="" className="menu-avatar" />
@@ -25,26 +27,27 @@ function AccountMenu({ user, isCreator, logout, children }) {
         <span>{user.email}</span>
       </li>
       {children}
-      {isCreator && <DropdownItem as={Link} href="/dashboard">Dashboard</DropdownItem>}
-      <DropdownItem as={Link} href="/account">My account</DropdownItem>
-      <DropdownItem onClick={logout}>Log out</DropdownItem>
+      {isCreator && <DropdownItem as={Link} href="/dashboard">{t('header.dashboard')}</DropdownItem>}
+      <DropdownItem as={Link} href="/account">{t('header.myAccount')}</DropdownItem>
+      <DropdownItem onClick={logout}>{t('header.logout')}</DropdownItem>
     </Dropdown>
   );
 }
 
-export function tabsFor(creator) {
-  const t = creator.tabs || {};
+export function tabsFor(creator, t) {
+  const tabs = creator.tabs || {};
   return [
-    ['home', 'Home', `/${creator.slug}`],
-    t.posts > 0 && ['posts', 'Posts', `/${creator.slug}/posts`],
-    t.membership && ['membership', 'Membership', `/${creator.slug}/membership`],
-    t.shop > 0 && ['shop', 'Shop', `/${creator.slug}/shop`],
-    ['hall-of-fame', 'Hall of Fame', '/hall-of-fame'],
+    ['home', t('tabs.home'), `/${creator.slug}`],
+    tabs.posts > 0 && ['posts', t('tabs.posts'), `/${creator.slug}/posts`],
+    tabs.membership && ['membership', t('tabs.membership'), `/${creator.slug}/membership`],
+    tabs.shop > 0 && ['shop', t('tabs.shop'), `/${creator.slug}/shop`],
+    ['hall-of-fame', t('tabs.hallOfFame'), '/hall-of-fame'],
   ].filter(Boolean);
 }
 
 export default function Header({ creator, isOwner, onEdit, tab = 'home' }) {
   const { user, logout, isCreator } = useAuth();
+  const { t, lang, setLang } = useI18n();
   const navigate = useNavigate();
   const location = useLocation();
   const share = useShare();
@@ -53,7 +56,12 @@ export default function Header({ creator, isOwner, onEdit, tab = 'home' }) {
   const authState = { from: location.pathname };
   const hallOfFame = (
     <DropdownItem as={Link} href="/hall-of-fame" icon={<TrophyIcon width={18} height={18} />}>
-      Hall of Fame
+      {t('tabs.hallOfFame')}
+    </DropdownItem>
+  );
+  const switchLang = (
+    <DropdownItem icon={<GlobeIcon width={18} height={18} />} onClick={() => setLang(lang === 'hi' ? 'en' : 'hi')}>
+      <span lang={lang === 'hi' ? 'en' : 'hi'}>{t('header.switchLang')}</span>
     </DropdownItem>
   );
 
@@ -63,19 +71,25 @@ export default function Header({ creator, isOwner, onEdit, tab = 'home' }) {
         <div className="header-left">
           {creator && (
             <Link to={`/${creator.slug}`} className="header-creator">
-              {creator.avatar ? (
-                <img src={assetUrl(creator.avatar)} alt={creator.slug} className="header-avatar" />
+              {creator.siteName ? (
+                <span className="header-name header-brand">{creator.siteName}</span>
               ) : (
-                <span className="header-avatar header-avatar-fallback">{creator.name[0]}</span>
+                <>
+                  {creator.avatar ? (
+                    <img src={assetUrl(creator.avatar)} alt={creator.slug} className="header-avatar" />
+                  ) : (
+                    <span className="header-avatar header-avatar-fallback">{creator.name[0]}</span>
+                  )}
+                  <span className="header-name">{creator.name}</span>
+                </>
               )}
-              <span className="header-name">{creator.name}</span>
             </Link>
           )}
         </div>
 
         {creator && (
-          <nav className="header-tabs" aria-label="Page sections">
-            {tabsFor(creator).map(([key, label, to]) => (
+          <nav className="header-tabs" aria-label={t('header.sections')}>
+            {tabsFor(creator, t).map(([key, label, to]) => (
               <Link key={key} to={to} className={`header-tab${tab === key ? ' active' : ''}`}>
                 {label}
               </Link>
@@ -84,27 +98,28 @@ export default function Header({ creator, isOwner, onEdit, tab = 'home' }) {
         )}
 
         <div className="header-right">
+          <LanguageSwitcher className="header-lang" />
           {isOwner ? (
             <>
-              <button type="button" className="circle-btn" onClick={doShare} aria-label="Share your page">
+              <button type="button" className="circle-btn" onClick={doShare} aria-label={t('header.shareYourPage')}>
                 <ShareIcon />
               </button>
               {onEdit && (
                 <button type="button" className="pill-btn pill-outline hide-sm" onClick={onEdit}>
-                  Edit page
+                  {t('header.editPage')}
                 </button>
               )}
               <Dropdown
                 className="hide-sm"
                 trigger={({ toggle, open }) => (
                   <button type="button" className="pill-btn pill-theme" onClick={toggle} aria-haspopup="menu" aria-expanded={open}>
-                    <PlusIcon width={18} height={18} strokeWidth={2.2} /> Create
+                    <PlusIcon width={18} height={18} strokeWidth={2.2} /> {t('header.create')}
                   </button>
                 )}
               >
-                <DropdownItem as={Link} href="/dashboard/posts/new">Write a post</DropdownItem>
-                <DropdownItem as={Link} href="/dashboard/shop">Add a shop item</DropdownItem>
-                <DropdownItem as={Link} href="/dashboard/memberships">Membership tiers</DropdownItem>
+                <DropdownItem as={Link} href="/dashboard/posts/new">{t('header.writePost')}</DropdownItem>
+                <DropdownItem as={Link} href="/dashboard/shop">{t('header.addShopItem')}</DropdownItem>
+                <DropdownItem as={Link} href="/dashboard/memberships">{t('header.membershipTiers')}</DropdownItem>
               </Dropdown>
               <AccountMenu
                 user={user}
@@ -114,34 +129,36 @@ export default function Header({ creator, isOwner, onEdit, tab = 'home' }) {
                   navigate(`/${creator.slug}`);
                 }}
               >
-                <DropdownItem as={Link} href={`/${creator.slug}`}>View page</DropdownItem>
+                <DropdownItem as={Link} href={`/${creator.slug}`}>{t('header.viewPage')}</DropdownItem>
                 {hallOfFame}
-                {onEdit && <DropdownItem onClick={onEdit}>Edit page</DropdownItem>}
+                {switchLang}
+                {onEdit && <DropdownItem onClick={onEdit}>{t('header.editPage')}</DropdownItem>}
               </AccountMenu>
             </>
           ) : (
             <>
               <Dropdown
                 trigger={({ toggle, open }) => (
-                  <button type="button" className="icon-btn" onClick={toggle} aria-label="More options" aria-haspopup="menu" aria-expanded={open}>
+                  <button type="button" className="icon-btn" onClick={toggle} aria-label={t('header.moreOptions')} aria-haspopup="menu" aria-expanded={open}>
                     <MoreIcon />
                   </button>
                 )}
               >
                 <DropdownItem icon={<ShareIcon width={18} height={18} />} onClick={doShare}>
-                  Share
+                  {t('header.share')}
                 </DropdownItem>
                 {hallOfFame}
+                {switchLang}
               </Dropdown>
               {user ? (
                 <AccountMenu user={user} isCreator={isCreator} logout={logout} />
               ) : (
                 <>
                   <Link to="/login" state={authState} className="text-link">
-                    Login
+                    {t('header.login')}
                   </Link>
                   <Link to="/signup" state={authState} className="pill-btn pill-theme pill-sm">
-                    Sign up
+                    {t('header.signup')}
                   </Link>
                 </>
               )}

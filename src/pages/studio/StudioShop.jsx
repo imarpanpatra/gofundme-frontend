@@ -5,6 +5,7 @@ import { BagIcon, ImageIcon } from '../../components/icons.jsx';
 import { KIND_META, TEMPLATE_ORDER } from '../../components/studio/productKinds.jsx';
 import { TransactionsPanel } from './StudioSupporters.jsx';
 import { api } from '../../lib/api.js';
+import { MIN_AMOUNT } from '../../lib/checkout.js';
 import { prepareImage } from '../../lib/image.js';
 import { formatMoney } from '../../lib/format.js';
 import { useToast } from '../../context/ToastContext.jsx';
@@ -85,7 +86,7 @@ function ProductModal({ product, kind, onClose, onSaved }) {
           </div>
           <div className="field">
             <label htmlFor="p-price">Price (₹)</label>
-            <input id="p-price" className="input-box input-sm" type="number" min="1" value={form.price} onChange={set('price')} />
+            <input id="p-price" className="input-box input-sm" type="number" min={MIN_AMOUNT} value={form.price} onChange={set('price')} />
           </div>
         </div>
         <div className="field">

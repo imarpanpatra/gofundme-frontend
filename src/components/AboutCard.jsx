@@ -1,23 +1,27 @@
 import { GlobeIcon } from './icons.jsx';
 import { hostOf } from '../lib/format.js';
 import YouTubeEmbed from './YouTubeEmbed.jsx';
+import { useI18n } from '../i18n/index.jsx';
 
 export default function AboutCard({ creator, isOwner, onEdit }) {
+  const { t } = useI18n();
   return (
-    <section className="about-section" aria-label={`About ${creator.name}`}>
+    <section className="about-section" aria-label={t('about.heading')}>
       <div className="about-head">
-        <h2>About {creator.name}</h2>
+        <h2>{t('about.heading')}</h2>
         {isOwner && (
           <button type="button" className="underline-btn" onClick={onEdit}>
-            Edit
+            {t('common.edit')}
           </button>
         )}
       </div>
-      {creator.featuredVideoId && <YouTubeEmbed id={creator.featuredVideoId} title={`${creator.name} — featured video`} />}
+      {creator.featuredVideoId && (
+        <YouTubeEmbed id={creator.featuredVideoId} title={t('about.featuredVideo', { name: creator.name })} />
+      )}
       {creator.about ? (
         <div className="about-body" dangerouslySetInnerHTML={{ __html: creator.about }} />
       ) : (
-        isOwner && <p className="muted">Tell your supporters what you're raising money for.</p>
+        isOwner && <p className="muted">{t('about.emptyOwner')}</p>
       )}
       {creator.links.length > 0 && (
         <div className="about-links">

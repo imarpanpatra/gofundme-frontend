@@ -6,7 +6,7 @@ import Spinner from './Spinner.jsx';
 import NotFound from '../pages/NotFound.jsx';
 import { useCreator } from '../lib/useCreator.js';
 import { useAuth } from '../context/AuthContext.jsx';
-import { themeVars } from '../lib/format.js';
+import { brandName, themeVars } from '../lib/format.js';
 
 export default function CreatorShell({ tab, title, wide, children }) {
   const { slug } = useParams();
@@ -14,7 +14,7 @@ export default function CreatorShell({ tab, title, wide, children }) {
   const { user } = useAuth();
 
   useEffect(() => {
-    if (status === 'ready') document.title = title ? `${title} · ${creator.name}` : creator.name;
+    if (status === 'ready') document.title = title ? `${title} · ${brandName(creator)}` : brandName(creator);
   }, [status, creator, title]);
 
   if (status === 'loading') return <Spinner fullPage />;

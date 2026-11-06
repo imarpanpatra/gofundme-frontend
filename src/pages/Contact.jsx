@@ -2,8 +2,10 @@ import { useState } from 'react';
 import InfoLayout from '../components/InfoLayout.jsx';
 import { ContactBlock, contextFor } from '../content/policies.jsx';
 import { api } from '../lib/api.js';
+import { useI18n } from '../i18n/index.jsx';
 
 function ContactForm() {
+  const { t } = useI18n();
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState('');
@@ -26,10 +28,10 @@ function ContactForm() {
   if (status === 'sent') {
     return (
       <div className="contact-sent">
-        <h3>Thanks, your message has been sent.</h3>
-        <p className="muted">I usually reply within 2 business days.</p>
+        <h3>{t('contact.sent')}</h3>
+        <p className="muted">{t('contact.replyTime')}</p>
         <button type="button" className="pill-btn pill-outline" onClick={() => setStatus('idle')}>
-          Send another message
+          {t('contact.another')}
         </button>
       </div>
     );
@@ -38,21 +40,21 @@ function ContactForm() {
   return (
     <form className="contact-form" onSubmit={submit}>
       <div className="contact-row">
-        <input className="input-box input-sm" placeholder="Your name" maxLength={80} value={form.name} onChange={set('name')} required />
+        <input className="input-box input-sm" placeholder={t('auth.name')} maxLength={80} value={form.name} onChange={set('name')} required />
         <input
           className="input-box input-sm"
           type="email"
-          placeholder="Your email"
+          placeholder={t('contact.email')}
           maxLength={120}
           value={form.email}
           onChange={set('email')}
           required
         />
       </div>
-      <input className="input-box input-sm" placeholder="Subject (optional)" maxLength={150} value={form.subject} onChange={set('subject')} />
+      <input className="input-box input-sm" placeholder={t('contact.subject')} maxLength={150} value={form.subject} onChange={set('subject')} />
       <textarea
         className="input-box input-sm"
-        placeholder="Your message"
+        placeholder={t('contact.message')}
         rows={6}
         maxLength={3000}
         value={form.message}
@@ -61,23 +63,21 @@ function ContactForm() {
       />
       {error && <p className="form-error">{error}</p>}
       <button type="submit" className="support-btn" disabled={status === 'sending'}>
-        {status === 'sending' ? <span className="dot-flashing" /> : 'Send message'}
+        {status === 'sending' ? <span className="dot-flashing" /> : t('contact.send')}
       </button>
     </form>
   );
 }
 
 export default function Contact() {
+  const { t } = useI18n();
   return (
-    <InfoLayout title="Contact Us">
+    <InfoLayout title={t('footer.contact')}>
       {(creator) => (
         <div className="info-body">
-          <p>
-            Questions about a payment, a refund, cancelling monthly support, or anything else? Send a message using the form
-            below or email directly. I usually reply within 2 business days.
-          </p>
+          <p>{t('contact.intro')}</p>
           <ContactBlock ctx={contextFor(creator)} showFormLink={false} />
-          <h2>Send a message</h2>
+          <h2>{t('contact.formTitle')}</h2>
           <ContactForm />
         </div>
       )}

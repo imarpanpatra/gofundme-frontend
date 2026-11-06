@@ -8,6 +8,7 @@ import { api } from '../lib/api.js';
 import { payWith } from '../lib/checkout.js';
 import { formatMoney, themeVars } from '../lib/format.js';
 import { useToast } from '../context/ToastContext.jsx';
+import { useI18n } from '../i18n/index.jsx';
 
 function ProductThumb({ product }) {
   const meta = KIND_META[product.kind] || KIND_META.custom;
@@ -21,19 +22,20 @@ function ProductThumb({ product }) {
 }
 
 function PurchaseDone({ purchase, onClose, creator }) {
+  const { t, tr } = useI18n();
   return (
-    <Modal title="Purchase complete" onClose={onClose} width={460} style={themeVars(creator.themeColor)}>
+    <Modal title={t('shop.purchaseComplete')} onClose={onClose} width={460} style={themeVars(creator.themeColor)}>
       <div className="thanks">
-        <h3>Thank you for your purchase!</h3>
+        <h3>{t('shop.thanks')}</h3>
         <p className="thanks-amount">{purchase.title}</p>
         {purchase.deliveryNote && <p className="delivery-note">{purchase.deliveryNote}</p>}
         {purchase.deliveryUrl && (
           <a href={purchase.deliveryUrl} target="_blank" rel="noopener noreferrer" className="support-btn">
-            Open your purchase
+            {t('shop.openPurchase')}
           </a>
         )}
         <p className="muted">
-          You can always find it again in <Link to="/account">My account</Link>. Razorpay will email you a receipt.
+          {tr('shop.findAgain', { account: (s) => <Link to="/account">{s}</Link> })}
         </p>
       </div>
     </Modal>
@@ -42,17 +44,18 @@ function PurchaseDone({ purchase, onClose, creator }) {
 
 function ProductModal({ product, creator, user, onClose, onBought }) {
   const toast = useToast();
+  const { t } = useI18n();
   const navigate = useNavigate();
   const [answer, setAnswer] = useState('');
   const [busy, setBusy] = useState(false);
 
   const buy = async () => {
     if (!user) {
-      navigate('/signup', { state: { from: `/${creator.slug}/shop`, reason: `Create a free account to buy "${product.title}".` } });
+      navigate('/signup', { state: { from: `/${creator.slug}/shop`, reason: t('shop.needAccount', { title: product.title }) } });
       return;
     }
     if (product.question && !answer.trim()) {
-      toast(`Please answer: ${product.question}`, 'error');
+      toast(t('shop.pleaseAnswer', { question: product.question }), 'error');
       return;
     }
     setBusy(true);
@@ -77,7 +80,7 @@ function ProductModal({ product, creator, user, onClose, onBought }) {
         <ProductThumb product={product} />
         <p className="product-price">{formatMoney(product.price)}</p>
         {product.description && <p className="product-desc">{product.description}</p>}
-        {product.stockLeft !== null && !product.soldOut && <p className="muted">{product.stockLeft} left</p>}
+        {product.stockLeft !== null && !product.soldOut && <p className="muted">{t('shop.left', { count: product.stockLeft })}</p>}
         {product.question && (
           <div className="field">
             <label htmlFor="buyer-answer">{product.question}</label>
@@ -85,15 +88,16 @@ function ProductModal({ product, creator, user, onClose, onBought }) {
           </div>
         )}
         <button type="button" className="support-btn" onClick={buy} disabled={busy || product.soldOut}>
-          {busy ? <span className="dot-flashing" /> : product.soldOut ? 'Sold out' : `Buy ${formatMoney(product.price)}`}
+          {busy ? <span className="dot-flashing" /> : product.soldOut ? t('shop.soldOut') : t('shop.buy', { price: formatMoney(product.price) })}
         </button>
-        {!user && <p className="support-account-note">You'll need a free account to buy.</p>}
+        {!user && <p className="support-account-note">{t('shop.accountNote')}</p>}
       </div>
     </Modal>
   );
 }
 
 function Shop({ creator, user, reload }) {
+  const { t } = useI18n();
   const [products, setProducts] = useState(null);
   const [error, setError] = useState('');
   const [open, setOpen] = useState(null);
@@ -114,9 +118,9 @@ function Shop({ creator, user, reload }) {
   return (
     <>
       <section className="feature-box posts-box">
-        <h1 className="posts-title">Shop</h1>
+        <h1 className="posts-title">{t('tabs.shop')}</h1>
         {products.length === 0 ? (
-          <p className="muted center-text">Nothing for sale yet.</p>
+          <p className="muted center-text">{t('shop.empty')}</p>
         ) : (
           <div className="product-grid">
             {products.map((p) => (
@@ -125,7 +129,7 @@ function Shop({ creator, user, reload }) {
                 <p className="product-title">{p.title}</p>
                 <p className="product-meta">
                   <strong>{formatMoney(p.price)}</strong>
-                  {p.soldOut ? <span className="badge badge-muted">Sold out</span> : p.stockLeft !== null && <span className="muted"> · {p.stockLeft} left</span>}
+                  {p.soldOut ? <span className="badge badge-muted">{t('shop.soldOut')}</span> : p.stockLeft !== null && <span className="muted"> · {t('shop.left', { count: p.stockLeft })}</span>}
                 </p>
               </button>
             ))}
@@ -152,8 +156,9 @@ function Shop({ creator, user, reload }) {
 }
 
 export default function ShopPage() {
+  const { t } = useI18n();
   return (
-    <CreatorShell tab="shop" title="Shop" wide>
+    <CreatorShell tab="shop" title={t('tabs.shop')} wide>
       {({ creator, user, reload }) => <Shop creator={creator} user={user} reload={reload} />}
     </CreatorShell>
   );

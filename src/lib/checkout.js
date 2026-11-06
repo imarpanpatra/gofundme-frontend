@@ -1,6 +1,8 @@
 import { api, assetUrl } from './api.js';
 import { loadRazorpay } from './razorpay.js';
 
+export const MIN_AMOUNT = 11;
+
 export async function payWith(order, { creator, description, prefillName, onFailed }) {
   const Razorpay = await loadRazorpay();
   return new Promise((resolve, reject) => {

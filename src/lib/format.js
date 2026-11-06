@@ -1,5 +1,15 @@
 const SYMBOLS = { INR: '₹' };
 
+let lang = 'en';
+
+export function setFormatLang(next) {
+  lang = next;
+}
+
+export const brandName = (creator) => creator?.siteName || creator?.name || '';
+
+export const mentionOf = (creator) => creator?.mention || creator?.name || '';
+
 export const currencySymbol = (c) => SYMBOLS[c] || `${c} `;
 
 export const formatNumber = (n) =>
@@ -8,11 +18,14 @@ export const formatNumber = (n) =>
 export const formatMoney = (n, currency = 'INR') => `${currencySymbol(currency)}${formatNumber(n)}`;
 
 export const shortDate = (d) =>
-  d ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) : '';
+  d
+    ? new Date(d).toLocaleDateString(lang === 'hi' ? 'hi-IN' : 'en-US', { month: 'short', day: '2-digit', year: 'numeric' })
+    : '';
 
 export function timeAgo(date) {
   const s = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
-  if (s < 60) return 'just now';
+  const rtf = new Intl.RelativeTimeFormat(lang === 'hi' ? 'hi-IN' : 'en', { numeric: 'auto' });
+  if (s < 60) return rtf.format(0, 'second');
   const units = [
     ['year', 31536000],
     ['month', 2592000],
@@ -23,9 +36,9 @@ export function timeAgo(date) {
   ];
   for (const [name, secs] of units) {
     const v = Math.floor(s / secs);
-    if (v >= 1) return `${v} ${name}${v > 1 ? 's' : ''} ago`;
+    if (v >= 1) return rtf.format(-v, name);
   }
-  return 'just now';
+  return rtf.format(0, 'second');
 }
 
 export function hexToRgba(hex, alpha) {

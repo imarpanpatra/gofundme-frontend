@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import Spinner from '../components/Spinner.jsx';
+import { useI18n } from '../i18n/index.jsx';
 
 export function afterAuthPath(state, user) {
   if (state?.from) return state.from;
@@ -10,6 +11,7 @@ export function afterAuthPath(state, user) {
 
 export default function Login() {
   const { user, ready, login } = useAuth();
+  const { t } = useI18n();
   const navigate = useNavigate();
   const location = useLocation();
   const [email, setEmail] = useState('');
@@ -36,12 +38,12 @@ export default function Login() {
   return (
     <div className="auth-page">
       <form className="auth-card" onSubmit={submit}>
-        <h1>Welcome back</h1>
-        <p className="muted">{location.state?.reason || 'Log in to your account.'}</p>
+        <h1>{t('auth.welcomeBack')}</h1>
+        <p className="muted">{location.state?.reason || t('auth.loginIntro')}</p>
         <input
           className="input-box input-sm"
           type="email"
-          placeholder="Email"
+          placeholder={t('auth.email')}
           autoComplete="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -50,7 +52,7 @@ export default function Login() {
         <input
           className="input-box input-sm"
           type="password"
-          placeholder="Password"
+          placeholder={t('auth.password')}
           autoComplete="current-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -58,12 +60,12 @@ export default function Login() {
         />
         {error && <p className="form-error">{error}</p>}
         <button type="submit" className="support-btn" disabled={busy}>
-          {busy ? <span className="dot-flashing" /> : 'Log in'}
+          {busy ? <span className="dot-flashing" /> : t('header.login')}
         </button>
         <p className="auth-switch">
-          New here?{' '}
+          {t('auth.newHere')}{' '}
           <Link to="/signup" state={location.state} replace>
-            Create an account
+            {t('auth.createAccountLink')}
           </Link>
         </p>
       </form>

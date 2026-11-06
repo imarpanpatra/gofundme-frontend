@@ -4,14 +4,16 @@ import Footer from './Footer.jsx';
 import Spinner from './Spinner.jsx';
 import { useSite } from '../lib/useSite.js';
 import { useAuth } from '../context/AuthContext.jsx';
-import { themeVars } from '../lib/format.js';
+import { brandName, themeVars } from '../lib/format.js';
+import { useI18n } from '../i18n/index.jsx';
 
 export default function InfoLayout({ title, updated, children }) {
   const site = useSite();
   const { user } = useAuth();
+  const { t } = useI18n();
 
   useEffect(() => {
-    if (site.status === 'ready') document.title = `${title} · ${site.creator.name}`;
+    if (site.status === 'ready') document.title = `${title} · ${brandName(site.creator)}`;
   }, [site, title]);
 
   if (site.status === 'loading') return <Spinner fullPage />;
@@ -32,7 +34,7 @@ export default function InfoLayout({ title, updated, children }) {
       <main className="info-main">
         <article className="feature-box info-card">
           <h1 className="info-title">{title}</h1>
-          {updated && <p className="info-updated">Last updated: {updated}</p>}
+          {updated && <p className="info-updated">{t('common.lastUpdated', { date: updated })}</p>}
           {typeof children === 'function' ? children(creator) : children}
         </article>
       </main>

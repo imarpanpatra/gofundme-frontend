@@ -2,6 +2,7 @@ import { formatMoney, initials, socialHandleUrl, timeAgo } from '../lib/format.j
 import { Link } from 'react-router-dom';
 import { HeartIcon, TrophyIcon } from './icons.jsx';
 import Spinner from './Spinner.jsx';
+import { useI18n } from '../i18n/index.jsx';
 
 function SupporterName({ name }) {
   const url = socialHandleUrl(name);
@@ -14,43 +15,34 @@ function SupporterName({ name }) {
   );
 }
 
+const strong = (text) => <strong>{text}</strong>;
+
 export function SupportAction({ s }) {
+  const { t, tr } = useI18n();
   if (s.type === 'membership') {
-    return (
-      <>
-        is now a member{s.tierName && <> · <strong>{s.tierName}</strong></>}
-      </>
-    );
+    return s.tierName ? tr('supporters.memberTier', { tier: strong(s.tierName) }) : t('supporters.member');
   }
   if (s.type === 'shop') {
-    return (
-      <>
-        bought <strong>{s.productTitle || 'an item'}</strong>
-      </>
-    );
+    return tr('supporters.bought', { item: strong(s.productTitle || t('supporters.anItem')) });
   }
-  return (
-    <>
-      {s.monthly ? 'is a monthly supporter' : 'supported'}{' '}
-      <strong>
-        {formatMoney(s.amount, s.currency)}
-        {s.monthly && '/month'}
-      </strong>
-    </>
-  );
+  const amount = formatMoney(s.amount, s.currency);
+  return s.monthly
+    ? tr('supporters.monthly', { amount: strong(`${amount}${t('common.perMonth')}`) })
+    : tr('supporters.supported', { amount: strong(amount) });
 }
 
 export default function RecentSupporters({ creatorName, supporters, hasMore, loadingMore, onLoadMore }) {
+  const { t } = useI18n();
   return (
-    <section className="supporters-section" aria-label="Recent supporters">
-      <p className="supporters-title">Recent supporters</p>
+    <section className="supporters-section" aria-label={t('supporters.title')}>
+      <p className="supporters-title">{t('supporters.title')}</p>
 
       {supporters.length === 0 ? (
         <div className="supporters-empty">
           <span className="supporters-empty-icon">
             <HeartIcon width={22} height={22} />
           </span>
-          <p>Be the first one to support {creatorName}.</p>
+          <p>{t('supporters.empty', { name: creatorName })}</p>
         </div>
       ) : (
         <ul className="supporters-list">
@@ -76,11 +68,11 @@ export default function RecentSupporters({ creatorName, supporters, hasMore, loa
 
       {hasMore && (
         <button type="button" className="pill-btn pill-outline see-more" onClick={onLoadMore} disabled={loadingMore}>
-          {loadingMore ? <Spinner small /> : 'See more'}
+          {loadingMore ? <Spinner small /> : t('common.seeMore')}
         </button>
       )}
       <Link to="/hall-of-fame" className="hof-link">
-        <TrophyIcon width={18} height={18} /> View the Hall of Fame
+        <TrophyIcon width={18} height={18} /> {t('supporters.viewHallOfFame')}
       </Link>
     </section>
   );

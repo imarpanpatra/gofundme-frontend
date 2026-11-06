@@ -4,9 +4,11 @@ import PostCard from '../components/PostCard.jsx';
 import Spinner from '../components/Spinner.jsx';
 import { api } from '../lib/api.js';
 import { useAuth } from '../context/AuthContext.jsx';
+import { useI18n } from '../i18n/index.jsx';
 
 function PostsList({ creator }) {
   const { user } = useAuth();
+  const { t } = useI18n();
   const [category, setCategory] = useState('');
   const [page, setPage] = useState(1);
   const [posts, setPosts] = useState([]);
@@ -35,12 +37,12 @@ function PostsList({ creator }) {
 
   return (
     <section className="feature-box posts-box">
-      <h1 className="posts-title">Posts</h1>
+      <h1 className="posts-title">{t('tabs.posts')}</h1>
       {meta?.categories.length > 0 && (
         <div className="chip-row">
           {category && (
             <button type="button" className="cat-chip" onClick={() => pick('')}>
-              All
+              {t('posts.all')}
             </button>
           )}
           {meta.categories.map((c) => (
@@ -56,7 +58,7 @@ function PostsList({ creator }) {
         </div>
       )}
       {error && <p className="form-error">{error}</p>}
-      {meta && posts.length === 0 && !loading && <p className="muted center-text">No posts yet.</p>}
+      {meta && posts.length === 0 && !loading && <p className="muted center-text">{t('posts.none')}</p>}
       <div className="post-grid">
         {posts.map((p) => (
           <PostCard key={p.slug} slug={creator.slug} post={p} />
@@ -69,7 +71,7 @@ function PostsList({ creator }) {
       )}
       {meta && page < meta.pages && !loading && (
         <button type="button" className="pill-btn pill-outline see-more" onClick={() => setPage((p) => p + 1)}>
-          Load more posts
+          {t('posts.loadMore')}
         </button>
       )}
     </section>
@@ -77,8 +79,9 @@ function PostsList({ creator }) {
 }
 
 export default function PostsPage() {
+  const { t } = useI18n();
   return (
-    <CreatorShell tab="posts" title="Posts" wide>
+    <CreatorShell tab="posts" title={t('tabs.posts')} wide>
       {({ creator }) => <PostsList creator={creator} />}
     </CreatorShell>
   );

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { HeartIcon, UsersIcon } from './icons.jsx';
 import { shortDate } from '../lib/format.js';
+import { useI18n } from '../i18n/index.jsx';
 
 export const VISIBILITY = {
   public: { label: 'Public', description: 'Visible to everyone.' },
@@ -9,15 +10,17 @@ export const VISIBILITY = {
 };
 
 export function LockBadge({ visibility, size = 26 }) {
+  const { t } = useI18n();
   return (
     <span className="lock-badge">
       {visibility === 'supporters' ? <HeartIcon width={size} height={size} fill="currentColor" /> : <UsersIcon width={size} height={size} />}
-      <strong>{VISIBILITY[visibility]?.label}</strong>
+      <strong>{t(`visibility.${visibility}`)}</strong>
     </span>
   );
 }
 
 export default function PostCard({ slug, post }) {
+  const { t } = useI18n();
   return (
     <Link to={`/${slug}/posts/${post.slug}`} className="post-card">
       <div className={`post-thumb${post.locked ? ' is-locked' : ''}`}>
@@ -32,7 +35,7 @@ export default function PostCard({ slug, post }) {
       <p className="post-card-title">{post.title}</p>
       <p className="post-card-meta">
         {shortDate(post.publishedAt)}
-        {post.views > 0 && ` · ${post.views} ${post.views === 1 ? 'view' : 'views'}`}
+        {post.views > 0 && ` · ${t('posts.views', { count: post.views })}`}
       </p>
     </Link>
   );

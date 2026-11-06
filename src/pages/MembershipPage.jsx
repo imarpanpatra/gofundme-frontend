@@ -7,9 +7,11 @@ import { api } from '../lib/api.js';
 import { payWith } from '../lib/checkout.js';
 import { formatMoney } from '../lib/format.js';
 import { useToast } from '../context/ToastContext.jsx';
+import { useI18n } from '../i18n/index.jsx';
 
 function Tiers({ creator, user, reload }) {
   const toast = useToast();
+  const { t, tr } = useI18n();
   const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
@@ -26,7 +28,7 @@ function Tiers({ creator, user, reload }) {
   const join = async (tier) => {
     if (!user) {
       navigate('/signup', {
-        state: { from: `/${creator.slug}/membership`, reason: `Create a free account to join ${creator.name}'s ${tier.name} membership.` },
+        state: { from: `/${creator.slug}/membership`, reason: t('membership.needAccount', { name: creator.name, tier: tier.name }) },
       });
       return;
     }
@@ -39,7 +41,7 @@ function Tiers({ creator, user, reload }) {
         onFailed: (msg) => toast(msg, 'error'),
       });
       if (support) {
-        toast(`Welcome to ${tier.name}! 🎉`);
+        toast(t('membership.welcome', { tier: tier.name }));
         load();
         reload();
       }
@@ -55,8 +57,8 @@ function Tiers({ creator, user, reload }) {
   if (!data.enabled || data.tiers.length === 0) {
     return (
       <section className="feature-box center-text">
-        <h1 className="posts-title">Membership</h1>
-        <p className="muted">{creator.name} hasn't opened memberships yet.</p>
+        <h1 className="posts-title">{t('tabs.membership')}</h1>
+        <p className="muted">{t('membership.closed', { name: creator.name })}</p>
       </section>
     );
   }
@@ -65,35 +67,35 @@ function Tiers({ creator, user, reload }) {
   return (
     <>
       <section className="feature-box membership-hero">
-        <h1 className="posts-title">Membership</h1>
+        <h1 className="posts-title">{t('tabs.membership')}</h1>
         <p className="muted">
-          Join {creator.name}'s inner circle with a monthly membership. Cancel anytime.
-          {data.memberCount > 0 && ` ${data.memberCount} ${data.memberCount === 1 ? 'member' : 'members'} so far.`}
+          {t('membership.intro', { name: creator.name })}
+          {data.memberCount > 0 && ` ${t('membership.memberCount', { count: data.memberCount })}`}
         </p>
         {mine && (
           <p className="member-note">
-            <StarIcon width={18} height={18} /> You're a <strong>{mine.tierName}</strong> member
-            {mine.cancelRequested ? ' (ends at the end of this billing period)' : ''}.{' '}
+            <StarIcon width={18} height={18} /> {tr('membership.youAre', { tier: <strong>{mine.tierName}</strong> })}
+            {mine.cancelRequested ? ` (${t('account.endsAtPeriodEnd')})` : ''}{' '}
             <Link to="/account" className="text-theme">
-              Manage
+              {t('membership.manage')}
             </Link>
           </p>
         )}
       </section>
       <div className="tier-grid">
-        {data.tiers.map((t) => {
-          const isMine = mine && String(mine.tierId) === String(t.id);
+        {data.tiers.map((tier) => {
+          const isMine = mine && String(mine.tierId) === String(tier.id);
           return (
-            <section key={t.id} className={`feature-box tier-card${isMine ? ' is-mine' : ''}`}>
-              <p className="tier-name">{t.name}</p>
+            <section key={tier.id} className={`feature-box tier-card${isMine ? ' is-mine' : ''}`}>
+              <p className="tier-name">{tier.name}</p>
               <p className="tier-price">
-                {formatMoney(t.price)}
-                <span>/month</span>
+                {formatMoney(tier.price)}
+                <span>{t('common.perMonth')}</span>
               </p>
-              {t.description && <p className="tier-desc">{t.description}</p>}
-              {t.perks.length > 0 && (
+              {tier.description && <p className="tier-desc">{tier.description}</p>}
+              {tier.perks.length > 0 && (
                 <ul className="tier-perks">
-                  {t.perks.map((p) => (
+                  {tier.perks.map((p) => (
                     <li key={p}>
                       <CheckIcon width={16} height={16} /> {p}
                     </li>
@@ -104,9 +106,9 @@ function Tiers({ creator, user, reload }) {
                 type="button"
                 className="support-btn tier-btn"
                 disabled={Boolean(mine) || busy !== null}
-                onClick={() => join(t)}
+                onClick={() => join(tier)}
               >
-                {busy === t.id ? <span className="dot-flashing" /> : isMine ? 'Your tier' : mine ? 'Already a member' : 'Join'}
+                {busy === tier.id ? <span className="dot-flashing" /> : isMine ? t('membership.yourTier') : mine ? t('membership.alreadyMember') : t('membership.join')}
               </button>
             </section>
           );
@@ -117,8 +119,9 @@ function Tiers({ creator, user, reload }) {
 }
 
 export default function MembershipPage() {
+  const { t } = useI18n();
   return (
-    <CreatorShell tab="membership" title="Membership" wide>
+    <CreatorShell tab="membership" title={t('tabs.membership')} wide>
       {({ creator, user, reload }) => <Tiers creator={creator} user={user} reload={reload} />}
     </CreatorShell>
   );

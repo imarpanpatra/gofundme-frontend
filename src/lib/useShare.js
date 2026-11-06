@@ -1,8 +1,10 @@
 import { useCallback } from 'react';
 import { useToast } from '../context/ToastContext.jsx';
+import { useI18n } from '../i18n/index.jsx';
 
 export function useShare() {
   const toast = useToast();
+  const { t } = useI18n();
   return useCallback(
     async (url, title) => {
       if (navigator.share) {
@@ -15,11 +17,11 @@ export function useShare() {
       }
       try {
         await navigator.clipboard.writeText(url);
-        toast('Link copied to clipboard');
+        toast(t('common.linkCopied'));
       } catch {
         toast(url);
       }
     },
-    [toast]
+    [toast, t]
   );
 }

@@ -8,16 +8,18 @@ import { formatMoney, shortDate, themeVars } from '../lib/format.js';
 import { useSite } from '../lib/useSite.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
+import { useI18n } from '../i18n/index.jsx';
 
 function CancelButton({ subscriptionId, label, onDone }) {
   const toast = useToast();
+  const { t } = useI18n();
   const [busy, setBusy] = useState(false);
   const cancel = async () => {
-    if (!window.confirm('Cancel this subscription? It stays active until the end of the current billing period.')) return;
+    if (!window.confirm(t('account.confirmCancel'))) return;
     setBusy(true);
     try {
       await api(`/account/subscriptions/${subscriptionId}/cancel`, { method: 'POST', body: {} });
-      toast('Cancelled. No further charges will be made.');
+      toast(t('account.cancelled'));
       onDone();
     } catch (err) {
       toast(err.message, 'error');
@@ -35,6 +37,7 @@ function CancelButton({ subscriptionId, label, onDone }) {
 export default function AccountPage() {
   const { user, ready, isCreator } = useAuth();
   const site = useSite();
+  const { t, tr } = useI18n();
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
 
@@ -49,8 +52,8 @@ export default function AccountPage() {
   }, [user, load]);
 
   useEffect(() => {
-    document.title = 'My account';
-  }, []);
+    document.title = t('header.myAccount');
+  }, [t]);
 
   if (!ready || site.status === 'loading') return <Spinner fullPage />;
   if (!user) return <Navigate to="/login" state={{ from: '/account' }} replace />;
@@ -62,14 +65,14 @@ export default function AccountPage() {
       <main className="hof-main">
         <section className="feature-box dash-hello">
           <div>
-            <h1 className="dash-hello-title">My account</h1>
+            <h1 className="dash-hello-title">{t('header.myAccount')}</h1>
             <p className="muted">
               {user.name} · {user.email}
             </p>
           </div>
           {isCreator && (
             <Link to="/dashboard" className="pill-btn pill-dark">
-              Go to dashboard
+              {t('account.goToDashboard')}
             </Link>
           )}
         </section>
@@ -79,9 +82,9 @@ export default function AccountPage() {
         {data && (
           <>
             <section className="feature-box">
-              <h2 className="dash-h2">Memberships</h2>
+              <h2 className="dash-h2">{t('account.memberships')}</h2>
               {data.memberships.length === 0 ? (
-                <p className="muted">You don't have any active memberships.</p>
+                <p className="muted">{t('account.noMemberships')}</p>
               ) : (
                 <ul className="dash-list">
                   {data.memberships.map((m) => (
@@ -91,12 +94,12 @@ export default function AccountPage() {
                           <strong>{m.tierName}</strong> · <Link to={`/${m.creator?.slug}`}>{m.creator?.name}</Link>
                         </p>
                         <p className="supporter-time">
-                          {formatMoney(m.amount)}/month · since {shortDate(m.startedAt)}
-                          {m.cancelRequested && ' · ends at the end of this billing period'}
+                          {formatMoney(m.amount)}{t('common.perMonth')} · {t('account.since', { date: shortDate(m.startedAt) })}
+                          {m.cancelRequested && ` · ${t('account.endsAtPeriodEnd')}`}
                           {m.status !== 'active' && ` · ${m.status}`}
                         </p>
                       </div>
-                      {!m.cancelRequested && <CancelButton subscriptionId={m.subscriptionId} label="Cancel membership" onDone={load} />}
+                      {!m.cancelRequested && <CancelButton subscriptionId={m.subscriptionId} label={t('account.cancelMembership')} onDone={load} />}
                     </li>
                   ))}
                 </ul>
@@ -105,17 +108,17 @@ export default function AccountPage() {
 
             {data.monthlySupports.length > 0 && (
               <section className="feature-box">
-                <h2 className="dash-h2">Monthly support</h2>
+                <h2 className="dash-h2">{t('account.monthlySupport')}</h2>
                 <ul className="dash-list">
                   {data.monthlySupports.map((s) => (
                     <li key={s.subscriptionId} className="dash-row">
                       <div className="dash-row-main">
                         <p>
-                          <strong>{formatMoney(s.amount)}/month</strong> to <Link to={`/${s.creator?.slug}`}>{s.creator?.name}</Link>
+                          {tr('account.amountTo', { amount: <strong>{formatMoney(s.amount)}{t('common.perMonth')}</strong>, name: <Link to={`/${s.creator?.slug}`}>{s.creator?.name}</Link> })}
                         </p>
-                        <p className="supporter-time">since {shortDate(s.since)}</p>
+                        <p className="supporter-time">{t('account.since', { date: shortDate(s.since) })}</p>
                       </div>
-                      <CancelButton subscriptionId={s.subscriptionId} label="Cancel" onDone={load} />
+                      <CancelButton subscriptionId={s.subscriptionId} label={t('common.cancel')} onDone={load} />
                     </li>
                   ))}
                 </ul>
@@ -123,9 +126,9 @@ export default function AccountPage() {
             )}
 
             <section className="feature-box">
-              <h2 className="dash-h2">Purchases</h2>
+              <h2 className="dash-h2">{t('account.purchases')}</h2>
               {data.purchases.length === 0 ? (
-                <p className="muted">Things you buy from a shop will appear here.</p>
+                <p className="muted">{t('account.noPurchases')}</p>
               ) : (
                 <ul className="dash-list">
                   {data.purchases.map((p) => (
@@ -138,11 +141,11 @@ export default function AccountPage() {
                           {formatMoney(p.amount)} · {shortDate(p.paidAt)}
                         </p>
                         {p.deliveryNote && <p className="delivery-note">{p.deliveryNote}</p>}
-                        {p.answer && <p className="supporter-time">Your answer: {p.answer}</p>}
+                        {p.answer && <p className="supporter-time">{t('account.yourAnswer', { answer: p.answer })}</p>}
                       </div>
                       {p.deliveryUrl && (
                         <a href={p.deliveryUrl} target="_blank" rel="noopener noreferrer" className="pill-btn pill-theme pill-sm">
-                          Open
+                          {t('account.open')}
                         </a>
                       )}
                     </li>
@@ -152,10 +155,10 @@ export default function AccountPage() {
             </section>
 
             <section className="feature-box">
-              <h2 className="dash-h2">Support history</h2>
+              <h2 className="dash-h2">{t('account.history')}</h2>
               {data.supports.length === 0 ? (
                 <p className="muted">
-                  You haven't supported anyone yet. <Link to="/" className="text-theme">Find a page to support</Link>
+                  {t('account.noHistory')} <Link to="/" className="text-theme">{t('account.findPage')}</Link>
                 </p>
               ) : (
                 <ul className="dash-list">
@@ -163,8 +166,7 @@ export default function AccountPage() {
                     <li key={s.id} className="dash-row">
                       <div className="dash-row-main">
                         <p>
-                          {formatMoney(s.amount)}
-                          {s.monthly && '/month'} to <Link to={`/${s.creator?.slug}`}>{s.creator?.name}</Link>
+                          {tr('account.amountTo', { amount: `${formatMoney(s.amount)}${s.monthly ? t('common.perMonth') : ''}`, name: <Link to={`/${s.creator?.slug}`}>{s.creator?.name}</Link> })}
                         </p>
                         <p className="supporter-time">
                           {shortDate(s.paidAt)}

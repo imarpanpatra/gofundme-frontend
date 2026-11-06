@@ -3,9 +3,11 @@ import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import Spinner from '../components/Spinner.jsx';
 import { afterAuthPath } from './Login.jsx';
+import { useI18n } from '../i18n/index.jsx';
 
 export default function Signup() {
   const { user, ready, signup } = useAuth();
+  const { t, tr } = useI18n();
   const navigate = useNavigate();
   const location = useLocation();
   const [name, setName] = useState('');
@@ -21,7 +23,7 @@ export default function Signup() {
     e.preventDefault();
     setError('');
     if (password.length < 8) {
-      setError('Password must be at least 8 characters');
+      setError(t('auth.passwordShort'));
       return;
     }
     setBusy(true);
@@ -37,11 +39,11 @@ export default function Signup() {
   return (
     <div className="auth-page">
       <form className="auth-card" onSubmit={submit}>
-        <h1>Create your account</h1>
-        <p className="muted">{location.state?.reason || 'Sign up to support creators and join the Hall of Fame.'}</p>
+        <h1>{t('auth.createTitle')}</h1>
+        <p className="muted">{location.state?.reason || t('auth.signupIntro')}</p>
         <input
           className="input-box input-sm"
-          placeholder="Your name"
+          placeholder={t('auth.name')}
           autoComplete="name"
           maxLength={60}
           value={name}
@@ -51,7 +53,7 @@ export default function Signup() {
         <input
           className="input-box input-sm"
           type="email"
-          placeholder="Email"
+          placeholder={t('auth.email')}
           autoComplete="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -60,7 +62,7 @@ export default function Signup() {
         <input
           className="input-box input-sm"
           type="password"
-          placeholder="Password (min. 8 characters)"
+          placeholder={t('auth.passwordNew')}
           autoComplete="new-password"
           minLength={8}
           value={password}
@@ -69,15 +71,15 @@ export default function Signup() {
         />
         {error && <p className="form-error">{error}</p>}
         <button type="submit" className="support-btn" disabled={busy}>
-          {busy ? <span className="dot-flashing" /> : 'Create account'}
+          {busy ? <span className="dot-flashing" /> : t('auth.createButton')}
         </button>
         <p className="auth-fineprint">
-          By creating an account you agree to the <Link to="/terms">Terms</Link> and <Link to="/privacy">Privacy Policy</Link>.
+          {tr('auth.fineprint', { terms: (s) => <Link to="/terms">{s}</Link>, privacy: (s) => <Link to="/privacy">{s}</Link> })}
         </p>
         <p className="auth-switch">
-          Already have an account?{' '}
+          {t('auth.haveAccount')}{' '}
           <Link to="/login" state={location.state} replace>
-            Log in
+            {t('header.login')}
           </Link>
         </p>
       </form>

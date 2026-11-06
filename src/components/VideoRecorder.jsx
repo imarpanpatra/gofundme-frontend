@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { api } from '../lib/api.js';
 import { CloseIcon } from './icons.jsx';
 import Spinner from './Spinner.jsx';
+import { useI18n } from '../i18n/index.jsx';
 
 const MAX_SECONDS = 30;
 const MAX_BYTES = 4 * 1024 * 1024;
@@ -14,6 +15,7 @@ function pickMimeType() {
 }
 
 export default function VideoRecorder({ onClose, onDone }) {
+  const { t, tr } = useI18n();
   const liveRef = useRef(null);
   const streamRef = useRef(null);
   const recorderRef = useRef(null);
@@ -34,7 +36,7 @@ export default function VideoRecorder({ onClose, onDone }) {
     setError('');
     setPhase('starting');
     if (!navigator.mediaDevices?.getUserMedia || pickMimeType() === null) {
-      setError("Your browser can't record video here. You can upload a video file instead.");
+      setError(t('recorder.unsupported'));
       setPhase('error');
       return;
     }
@@ -47,10 +49,10 @@ export default function VideoRecorder({ onClose, onDone }) {
       if (liveRef.current) liveRef.current.srcObject = stream;
       setPhase('ready');
     } catch {
-      setError('Camera or microphone access was blocked. Allow access in your browser, or upload a video file instead.');
+      setError(t('recorder.blocked'));
       setPhase('error');
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     startCamera();
@@ -116,7 +118,7 @@ export default function VideoRecorder({ onClose, onDone }) {
   const pickFile = (file) => {
     if (!file) return;
     if (!/^video\/(webm|mp4|quicktime)$/.test(file.type)) {
-      setError('Choose a WEBM, MP4 or MOV video.');
+      setError(t('recorder.badType'));
       return;
     }
     stopStream();
@@ -127,7 +129,7 @@ export default function VideoRecorder({ onClose, onDone }) {
 
   const useClip = async () => {
     if (clip.blob.size > MAX_BYTES) {
-      setError('This video is larger than 4MB. Record a shorter one, or choose a smaller file.');
+      setError(t('recorder.tooBig'));
       return;
     }
     setPhase('uploading');
@@ -145,17 +147,17 @@ export default function VideoRecorder({ onClose, onDone }) {
   };
 
   return createPortal(
-    <div className="recorder" role="dialog" aria-modal="true" aria-label="Record a video message">
-      <button type="button" className="recorder-close" onClick={onClose} aria-label="Close">
+    <div className="recorder" role="dialog" aria-modal="true" aria-label={t('recorder.title')}>
+      <button type="button" className="recorder-close" onClick={onClose} aria-label={t('common.close')}>
         <CloseIcon />
       </button>
       <aside className="recorder-tips">
-        <p className="recorder-tips-title">🙂 Tips</p>
+        <p className="recorder-tips-title">🙂 {t('recorder.tips')}</p>
         <ul>
-          <li>Be kind and respectful</li>
-          <li>Keep it family-friendly</li>
-          <li>Respect everyone's privacy</li>
-          <li>Spread positivity!</li>
+          <li>{t('recorder.tip1')}</li>
+          <li>{t('recorder.tip2')}</li>
+          <li>{t('recorder.tip3')}</li>
+          <li>{t('recorder.tip4')}</li>
         </ul>
       </aside>
 
@@ -178,26 +180,24 @@ export default function VideoRecorder({ onClose, onDone }) {
         <div className="recorder-controls">
           {phase === 'ready' && (
             <>
-              <p>
-                Hit <b>RECORD</b> to start!
-              </p>
-              <button type="button" className="record-btn" onClick={startRecording} aria-label="Start recording">
+              <p>{tr('recorder.hitRecord', { b: (s) => <b>{s}</b> })}</p>
+              <button type="button" className="record-btn" onClick={startRecording} aria-label={t('recorder.start')}>
                 <span />
               </button>
             </>
           )}
           {phase === 'recording' && (
-            <button type="button" className="record-btn is-recording" onClick={stopRecording} aria-label="Stop recording">
+            <button type="button" className="record-btn is-recording" onClick={stopRecording} aria-label={t('recorder.stop')}>
               <span />
             </button>
           )}
           {(phase === 'review' || phase === 'uploading') && (
             <div className="recorder-actions">
               <button type="button" className="pill-btn pill-outline" onClick={retake} disabled={phase === 'uploading'}>
-                Retake
+                {t('recorder.retake')}
               </button>
               <button type="button" className="pill-btn recorder-use" onClick={useClip} disabled={phase === 'uploading'}>
-                {phase === 'uploading' ? <Spinner small /> : 'Use this video'}
+                {phase === 'uploading' ? <Spinner small /> : t('recorder.use')}
               </button>
             </div>
           )}
@@ -208,7 +208,7 @@ export default function VideoRecorder({ onClose, onDone }) {
         {error && phase !== 'error' && <p className="recorder-error">{error}</p>}
         {phase !== 'uploading' && (
           <button type="button" className="text-link recorder-upload" onClick={() => fileRef.current.click()}>
-            or upload a video file (max 4MB)
+            {t('recorder.upload')}
           </button>
         )}
         <input ref={fileRef} type="file" accept="video/webm,video/mp4,video/quicktime" hidden onChange={(e) => pickFile(e.target.files[0])} />

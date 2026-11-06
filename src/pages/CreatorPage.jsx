@@ -10,22 +10,26 @@ import Footer from '../components/Footer.jsx';
 import Spinner from '../components/Spinner.jsx';
 import NotFound from './NotFound.jsx';
 import { api, assetUrl } from '../lib/api.js';
-import { themeVars } from '../lib/format.js';
+import { brandName, mentionOf, themeVars } from '../lib/format.js';
 import { refreshSite } from '../lib/useSite.js';
 import { primeCreator } from '../lib/useCreator.js';
 import PostCard from '../components/PostCard.jsx';
+import GoalCard from '../components/GoalCard.jsx';
 import { prepareImage } from '../lib/image.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
+import { useI18n } from '../i18n/index.jsx';
 
 export default function CreatorPage() {
   const { slug } = useParams();
   const { user, setUser } = useAuth();
   const toast = useToast();
+  const { t } = useI18n();
   const [state, setState] = useState({ status: 'loading' });
   const [supporters, setSupporters] = useState([]);
   const [latestPosts, setLatestPosts] = useState([]);
   const [hasMore, setHasMore] = useState(false);
+  const [funding, setFunding] = useState({ raised: 0, supporters: 0 });
   const [loadingMore, setLoadingMore] = useState(false);
   const [editing, setEditing] = useState(false);
   const [thanks, setThanks] = useState(null);
@@ -42,7 +46,8 @@ export default function CreatorPage() {
       setLatestPosts(d.latestPosts || []);
       setSupporters(d.supporters);
       setHasMore(d.hasMore);
-      document.title = `${d.creator.name}`;
+      setFunding({ raised: d.raised || 0, supporters: d.supporterCount || 0 });
+      document.title = brandName(d.creator);
     } catch (err) {
       setState({ status: err.status === 404 ? 'missing' : 'error', message: err.message });
     }
@@ -68,7 +73,7 @@ export default function CreatorPage() {
       <div className="center-page">
         <p>{state.message}</p>
         <button type="button" className="pill-btn pill-outline" onClick={load}>
-          Try again
+          {t('common.tryAgain')}
         </button>
       </div>
     );
@@ -119,6 +124,7 @@ export default function CreatorPage() {
   const onSupported = (support) => {
     setThanks(support);
     setSupporters((s) => [support, ...s.filter((x) => x.id !== support.id)]);
+    setFunding((f) => ({ raised: f.raised + (Number(support.amount) || 0), supporters: f.supporters + 1 }));
   };
 
   return (
@@ -128,14 +134,14 @@ export default function CreatorPage() {
       <main className="page-main">
         <div className="cover-wrap">
           {creator.cover ? (
-            <img src={assetUrl(creator.cover)} alt="cover image" className="cover-image" fetchpriority="high" />
+            <img src={assetUrl(creator.cover)} alt={t('home.coverAlt')} className="cover-image" fetchpriority="high" />
           ) : (
             <div className="cover-image cover-empty" />
           )}
           {isOwner && (
             <>
               <button type="button" className="change-cover" onClick={() => coverInput.current.click()} disabled={coverUploading}>
-                {coverUploading ? <Spinner small /> : 'Change cover'}
+                {coverUploading ? <Spinner small /> : t('home.changeCover')}
               </button>
               <input ref={coverInput} type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden onChange={(e) => uploadCover(e.target.files[0])} />
             </>
@@ -150,6 +156,9 @@ export default function CreatorPage() {
         <div className="content">
           <div className="content-row">
             <div className="col col-widget">
+              {creator.goal?.amount > 0 && (
+                <GoalCard goal={creator.goal} raised={funding.raised} supporters={funding.supporters} currency={creator.currency} />
+              )}
               <SupportWidget
                 ref={widgetRef}
                 creator={creator}
@@ -160,7 +169,7 @@ export default function CreatorPage() {
               <div className="feature-box sidebar-box">
                 <AboutCard creator={creator} isOwner={isOwner} onEdit={() => setEditing(true)} />
                 <RecentSupporters
-                  creatorName={creator.name}
+                  creatorName={mentionOf(creator)}
                   supporters={supporters}
                   hasMore={hasMore}
                   loadingMore={loadingMore}
@@ -168,11 +177,11 @@ export default function CreatorPage() {
                 />
               </div>
               {latestPosts.length > 0 && (
-                <section className="feature-box home-posts" aria-label="Posts">
-                  <h2 className="home-posts-title">Posts</h2>
+                <section className="feature-box home-posts" aria-label={t('tabs.posts')}>
+                  <h2 className="home-posts-title">{t('tabs.posts')}</h2>
                   <PostCard slug={creator.slug} post={{ ...latestPosts[0], locked: latestPosts[0].visibility !== 'public' }} />
                   <Link to={`/${creator.slug}/posts`} className="pill-btn pill-outline see-more">
-                    View all posts
+                    {t('home.viewAllPosts')}
                   </Link>
                 </section>
               )}

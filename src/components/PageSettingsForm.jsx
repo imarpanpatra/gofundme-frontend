@@ -5,6 +5,7 @@ import { api, assetUrl } from '../lib/api.js';
 import { useToast } from '../context/ToastContext.jsx';
 import { themeVars } from '../lib/format.js';
 import { prepareImage } from '../lib/image.js';
+import { MIN_AMOUNT } from '../lib/checkout.js';
 
 const SWATCHES = ['#5F7FFF', '#FF813F', '#FF5F5F', '#BD5FFF', '#29ABE0', '#79D16B', '#FFDD00', '#222222'];
 
@@ -49,6 +50,8 @@ export default function PageSettingsForm({ creator, onSaved, onCancel }) {
   const editorRef = useRef(null);
   const fileRef = useRef(null);
   const [name, setName] = useState(creator.name);
+  const [siteName, setSiteName] = useState(creator.siteName || '');
+  const [mention, setMention] = useState(creator.mention || '');
   const [links, setLinks] = useState(creator.links.join('\n'));
   const [themeColor, setThemeColor] = useState(creator.themeColor);
   const [amounts, setAmounts] = useState(creator.suggestedAmounts.map(String));
@@ -58,6 +61,9 @@ export default function PageSettingsForm({ creator, onSaved, onCancel }) {
   const [contact, setContact] = useState(creator.contact);
   const [featuredVideo, setFeaturedVideo] = useState(creator.featuredVideoId ? `https://youtu.be/${creator.featuredVideoId}` : '');
   const setContactField = (key) => (e) => setContact((c) => ({ ...c, [key]: e.target.value }));
+  const [goalTitle, setGoalTitle] = useState(creator.goal?.title || '');
+  const [goalAmount, setGoalAmount] = useState(creator.goal?.amount ? String(creator.goal.amount) : '');
+  const [goalFor, setGoalFor] = useState(creator.goal?.raisingFor || '');
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
 
@@ -84,6 +90,8 @@ export default function PageSettingsForm({ creator, onSaved, onCancel }) {
         method: 'PUT',
         body: {
           name,
+          siteName,
+          mention,
           about: editorRef.current.innerHTML,
           links: links.split('\n'),
           themeColor,
@@ -92,6 +100,7 @@ export default function PageSettingsForm({ creator, onSaved, onCancel }) {
           recurringEnabled: recurring,
           contact,
           featuredVideo,
+          goal: { title: goalTitle, raisingFor: goalFor, amount: goalAmount.trim() === '' ? 0 : Number(goalAmount) },
         },
       });
       onSaved(updated);
@@ -116,6 +125,32 @@ export default function PageSettingsForm({ creator, onSaved, onCancel }) {
             <label htmlFor="edit-name">Name</label>
             <input id="edit-name" className="input-box input-sm" value={name} maxLength={60} onChange={(e) => setName(e.target.value)} />
           </div>
+        </div>
+
+        <div className="field">
+          <label htmlFor="edit-site-name">Site name</label>
+          <input
+            id="edit-site-name"
+            className="input-box input-sm"
+            maxLength={40}
+            placeholder="e.g. Go fund my trip"
+            value={siteName}
+            onChange={(e) => setSiteName(e.target.value)}
+          />
+          <span className="field-hint">Shown in the header and browser tab instead of your photo and name. Leave empty to show your photo and name.</span>
+        </div>
+
+        <div className="field">
+          <label htmlFor="edit-mention">Mention</label>
+          <input
+            id="edit-mention"
+            className="input-box input-sm"
+            maxLength={60}
+            placeholder="e.g. Arpan's & Akshay's journey"
+            value={mention}
+            onChange={(e) => setMention(e.target.value)}
+          />
+          <span className="field-hint">Used in "Support …" and similar lines, like "Support Arpan's & Akshay's journey". Leave empty to use your name.</span>
         </div>
 
         <div className="field">
@@ -165,7 +200,7 @@ export default function PageSettingsForm({ creator, onSaved, onCancel }) {
                 key={i}
                 className="input-box input-sm"
                 type="number"
-                min="1"
+                min={MIN_AMOUNT}
                 value={a}
                 onChange={(e) => setAmounts((prev) => prev.map((v, j) => (j === i ? e.target.value : v)))}
               />
@@ -183,6 +218,52 @@ export default function PageSettingsForm({ creator, onSaved, onCancel }) {
           <span className="checkmark" aria-hidden="true" />
           <span className="checkbox-label">Allow monthly support</span>
         </label>
+
+        <div className="field-group">
+          <h3>Fundraising goal</h3>
+          <p className="muted">
+            Shown at the top of your page with the total raised so far. The total counts every successful payment: support,
+            memberships and shop. Leave the target empty to hide it.
+          </p>
+          <div className="contact-row">
+            <div className="field">
+              <label htmlFor="edit-goal-title">Goal title (optional)</label>
+              <input
+                id="edit-goal-title"
+                className="input-box input-sm"
+                maxLength={80}
+                placeholder="e.g. My trip to Ladakh"
+                value={goalTitle}
+                onChange={(e) => setGoalTitle(e.target.value)}
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="edit-goal-amount">Target amount (₹)</label>
+              <input
+                id="edit-goal-amount"
+                className="input-box input-sm"
+                type="number"
+                min="0"
+                step="1"
+                placeholder="e.g. 50000"
+                value={goalAmount}
+                onChange={(e) => setGoalAmount(e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="field">
+            <label htmlFor="edit-goal-for">Raising for (optional)</label>
+            <input
+              id="edit-goal-for"
+              className="input-box input-sm"
+              maxLength={120}
+              placeholder="e.g. Arpan Patra & Akshay Ghugare"
+              value={goalFor}
+              onChange={(e) => setGoalFor(e.target.value)}
+            />
+            <span className="field-hint">The people this goal is for. Shown under the goal title.</span>
+          </div>
+        </div>
 
         <div className="field-group">
           <h3>Contact details</h3>
