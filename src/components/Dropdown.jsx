@@ -30,7 +30,7 @@ export default function Dropdown({ trigger, children, align = 'right', className
   );
 }
 
-export function DropdownItem({ icon, children, onClick, href, as: As }) {
+export function DropdownItem({ icon, children, onClick, href, as: As, className }) {
   const content = (
     <>
       {icon && <span className="dropdown-icon">{icon}</span>}
@@ -38,7 +38,7 @@ export function DropdownItem({ icon, children, onClick, href, as: As }) {
     </>
   );
   return (
-    <li role="none">
+    <li role="none" className={className}>
       {As ? (
         <As className="dropdown-item" role="menuitem" {...(href ? { to: href } : {})}>
           {content}

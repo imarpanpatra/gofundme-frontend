@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import Spinner from '../components/Spinner.jsx';
+import AuthLayout from '../components/AuthLayout.jsx';
+import PasswordInput from '../components/PasswordInput.jsx';
+import GoogleButton from '../components/GoogleButton.jsx';
 import { useI18n } from '../i18n/index.jsx';
 
 export function afterAuthPath(state, user) {
@@ -10,7 +13,7 @@ export function afterAuthPath(state, user) {
 }
 
 export default function Login() {
-  const { user, ready, login } = useAuth();
+  const { user, ready, login, loginWithGoogle } = useAuth();
   const { t } = useI18n();
   const navigate = useNavigate();
   const location = useLocation();
@@ -35,11 +38,27 @@ export default function Login() {
     }
   };
 
+  const google = async (credential) => {
+    setError('');
+    setBusy(true);
+    try {
+      const u = await loginWithGoogle(credential);
+      navigate(afterAuthPath(location.state, u), { replace: true });
+    } catch (err) {
+      setError(err.message);
+      setBusy(false);
+    }
+  };
+
   return (
-    <div className="auth-page">
+    <AuthLayout>
       <form className="auth-card" onSubmit={submit}>
         <h1>{t('auth.welcomeBack')}</h1>
         <p className="muted">{location.state?.reason || t('auth.loginIntro')}</p>
+        <GoogleButton mode="signin" onCredential={google} onError={setError} />
+        <div className="auth-or">
+          <span>{t('auth.or')}</span>
+        </div>
         <input
           className="input-box input-sm"
           type="email"
@@ -49,9 +68,8 @@ export default function Login() {
           onChange={(e) => setEmail(e.target.value)}
           required
         />
-        <input
+        <PasswordInput
           className="input-box input-sm"
-          type="password"
           placeholder={t('auth.password')}
           autoComplete="current-password"
           value={password}
@@ -69,6 +87,6 @@ export default function Login() {
           </Link>
         </p>
       </form>
-    </div>
+    </AuthLayout>
   );
 }

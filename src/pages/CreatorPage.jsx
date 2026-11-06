@@ -15,6 +15,7 @@ import { refreshSite } from '../lib/useSite.js';
 import { primeCreator } from '../lib/useCreator.js';
 import PostCard from '../components/PostCard.jsx';
 import GoalCard from '../components/GoalCard.jsx';
+import VietnamBackdrop, { PhotoCredits } from '../components/VietnamBackdrop.jsx';
 import { prepareImage } from '../lib/image.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
@@ -128,7 +129,8 @@ export default function CreatorPage() {
   };
 
   return (
-    <div className="page" style={themeVars(creator.themeColor)}>
+    <div className="page vn-page home-page" style={themeVars(creator.themeColor)}>
+      <VietnamBackdrop />
       <Header creator={creator} isOwner={isOwner} onEdit={() => setEditing(true)} />
 
       <main className="page-main">
@@ -187,6 +189,9 @@ export default function CreatorPage() {
               )}
             </div>
           </div>
+        </div>
+        <div className="home-credits">
+          <PhotoCredits />
         </div>
       </main>
 

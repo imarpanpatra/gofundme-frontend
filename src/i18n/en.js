@@ -27,7 +27,9 @@ export default {
   'header.share': 'Share',
   'header.login': 'Log in',
   'header.signup': 'Sign up',
-  'header.switchLang': 'हिन्दी में देखें',
+
+  'theme.toDark': 'Switch to dark mode',
+  'theme.toLight': 'Switch to light mode',
 
   'tabs.home': 'Home',
   'tabs.posts': 'Posts',
@@ -183,7 +185,6 @@ export default {
   'hof.since': 'Supporting since {date}',
   'hof.showMore': 'Show more supporters',
   'hof.ctaTitle': 'Want to see your name here?',
-  'hof.credits': 'Background photos: {photos}, by Jakub Hałun via Wikimedia Commons, licensed under <license>CC BY 4.0</license> (blurred).',
   'hof.ctaBody': 'Every contribution counts towards the leaderboard.',
 
   'account.goToDashboard': 'Go to dashboard',
@@ -208,6 +209,10 @@ export default {
   'auth.loginIntro': 'Log in to your account.',
   'auth.email': 'Email',
   'auth.password': 'Password',
+  'auth.showPassword': 'Show password',
+  'auth.hidePassword': 'Hide password',
+  'auth.or': 'or',
+  'auth.googleUnavailable': 'Google sign-in is unavailable right now. Use your email instead.',
   'auth.newHere': 'New here?',
   'auth.createAccountLink': 'Create an account',
   'auth.createTitle': 'Create your account',
@@ -262,6 +267,8 @@ export default {
   'aboutPage.onlineTitle': "Find us online",
   'aboutPage.touchTitle': 'Get in touch',
   'aboutPage.touch': "Have a question or a travel tip for us? <link>Contact us</link>.",
+
+  'photos.credits': 'Background photos: {photos}, by Jakub Hałun via Wikimedia Commons, licensed under <license>CC BY 4.0</license> (blurred).',
 
   'notFound.title': 'Page not found',
   'notFound.body': "The page you're looking for doesn't exist.",

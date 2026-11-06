@@ -1,11 +1,13 @@
 import { assetUrl } from '../lib/api.js';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Dropdown, { DropdownItem } from './Dropdown.jsx';
-import { GlobeIcon, MenuIcon, MoreIcon, PlusIcon, ShareIcon, TrophyIcon } from './icons.jsx';
+import { MenuIcon, MoonIcon, MoreIcon, PlusIcon, ShareIcon, SunIcon, TrophyIcon } from './icons.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useShare } from '../lib/useShare.js';
 import { initials } from '../lib/format.js';
-import { LanguageSwitcher, useI18n } from '../i18n/index.jsx';
+import { LanguageMenu, useI18n } from '../i18n/index.jsx';
+import ThemeToggle from './ThemeToggle.jsx';
+import { useTheme } from '../lib/theme.js';
 
 function AccountMenu({ user, isCreator, logout, children }) {
   const { t } = useI18n();
@@ -47,7 +49,8 @@ export function tabsFor(creator, t) {
 
 export default function Header({ creator, isOwner, onEdit, tab = 'home' }) {
   const { user, logout, isCreator } = useAuth();
-  const { t, lang, setLang } = useI18n();
+  const { t } = useI18n();
+  const { theme, toggle: toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const share = useShare();
@@ -59,9 +62,9 @@ export default function Header({ creator, isOwner, onEdit, tab = 'home' }) {
       {t('tabs.hallOfFame')}
     </DropdownItem>
   );
-  const switchLang = (
-    <DropdownItem icon={<GlobeIcon width={18} height={18} />} onClick={() => setLang(lang === 'hi' ? 'en' : 'hi')}>
-      <span lang={lang === 'hi' ? 'en' : 'hi'}>{t('header.switchLang')}</span>
+  const themeItem = (
+    <DropdownItem className="menu-theme" icon={theme === 'dark' ? <SunIcon width={18} height={18} /> : <MoonIcon width={18} height={18} />} onClick={toggleTheme}>
+      {theme === 'dark' ? t('theme.toLight') : t('theme.toDark')}
     </DropdownItem>
   );
 
@@ -98,7 +101,8 @@ export default function Header({ creator, isOwner, onEdit, tab = 'home' }) {
         )}
 
         <div className="header-right">
-          <LanguageSwitcher className="header-lang" />
+          <LanguageMenu />
+          <ThemeToggle className="header-theme" />
           {isOwner ? (
             <>
               <button type="button" className="circle-btn" onClick={doShare} aria-label={t('header.shareYourPage')}>
@@ -131,7 +135,7 @@ export default function Header({ creator, isOwner, onEdit, tab = 'home' }) {
               >
                 <DropdownItem as={Link} href={`/${creator.slug}`}>{t('header.viewPage')}</DropdownItem>
                 {hallOfFame}
-                {switchLang}
+                {themeItem}
                 {onEdit && <DropdownItem onClick={onEdit}>{t('header.editPage')}</DropdownItem>}
               </AccountMenu>
             </>
@@ -148,7 +152,7 @@ export default function Header({ creator, isOwner, onEdit, tab = 'home' }) {
                   {t('header.share')}
                 </DropdownItem>
                 {hallOfFame}
-                {switchLang}
+                {themeItem}
               </Dropdown>
               {user ? (
                 <AccountMenu user={user} isCreator={isCreator} logout={logout} />
@@ -166,6 +170,15 @@ export default function Header({ creator, isOwner, onEdit, tab = 'home' }) {
           )}
         </div>
       </div>
+      {creator && (
+        <nav className="mobile-tabs" aria-label={t('header.sections')}>
+          {tabsFor(creator, t).map(([key, label, to]) => (
+            <Link key={key} to={to} className={`mobile-tab${tab === key ? ' active' : ''}`} aria-current={tab === key ? 'page' : undefined}>
+              {label}
+            </Link>
+          ))}
+        </nav>
+      )}
     </header>
   );
 }

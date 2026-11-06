@@ -6,6 +6,7 @@ import Spinner from '../components/Spinner.jsx';
 import { KIND_META } from '../components/studio/productKinds.jsx';
 import { api } from '../lib/api.js';
 import { payWith } from '../lib/checkout.js';
+import { confetti } from '../lib/confetti.js';
 import { formatMoney, themeVars } from '../lib/format.js';
 import { useToast } from '../context/ToastContext.jsx';
 import { useI18n } from '../i18n/index.jsx';
@@ -23,6 +24,7 @@ function ProductThumb({ product }) {
 
 function PurchaseDone({ purchase, onClose, creator }) {
   const { t, tr } = useI18n();
+  useEffect(() => confetti(), []);
   return (
     <Modal title={t('shop.purchaseComplete')} onClose={onClose} width={460} style={themeVars(creator.themeColor)}>
       <div className="thanks">

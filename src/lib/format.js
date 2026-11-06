@@ -1,5 +1,6 @@
 const SYMBOLS = { INR: '₹' };
 
+const LOCALES = { en: 'en-US', hi: 'hi-IN', mr: 'mr-IN' };
 let lang = 'en';
 
 export function setFormatLang(next) {
@@ -19,12 +20,12 @@ export const formatMoney = (n, currency = 'INR') => `${currencySymbol(currency)}
 
 export const shortDate = (d) =>
   d
-    ? new Date(d).toLocaleDateString(lang === 'hi' ? 'hi-IN' : 'en-US', { month: 'short', day: '2-digit', year: 'numeric' })
+    ? new Date(d).toLocaleDateString(LOCALES[lang] || LOCALES.en, { month: 'short', day: '2-digit', year: 'numeric' })
     : '';
 
 export function timeAgo(date) {
   const s = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
-  const rtf = new Intl.RelativeTimeFormat(lang === 'hi' ? 'hi-IN' : 'en', { numeric: 'auto' });
+  const rtf = new Intl.RelativeTimeFormat(lang === 'en' ? 'en' : LOCALES[lang] || 'en', { numeric: 'auto' });
   if (s < 60) return rtf.format(0, 'second');
   const units = [
     ['year', 31536000],

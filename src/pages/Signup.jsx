@@ -2,11 +2,14 @@ import { useState } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import Spinner from '../components/Spinner.jsx';
+import AuthLayout from '../components/AuthLayout.jsx';
+import PasswordInput from '../components/PasswordInput.jsx';
+import GoogleButton from '../components/GoogleButton.jsx';
 import { afterAuthPath } from './Login.jsx';
 import { useI18n } from '../i18n/index.jsx';
 
 export default function Signup() {
-  const { user, ready, signup } = useAuth();
+  const { user, ready, signup, loginWithGoogle } = useAuth();
   const { t, tr } = useI18n();
   const navigate = useNavigate();
   const location = useLocation();
@@ -36,11 +39,27 @@ export default function Signup() {
     }
   };
 
+  const google = async (credential) => {
+    setError('');
+    setBusy(true);
+    try {
+      const u = await loginWithGoogle(credential);
+      navigate(afterAuthPath(location.state, u), { replace: true });
+    } catch (err) {
+      setError(err.message);
+      setBusy(false);
+    }
+  };
+
   return (
-    <div className="auth-page">
+    <AuthLayout>
       <form className="auth-card" onSubmit={submit}>
         <h1>{t('auth.createTitle')}</h1>
         <p className="muted">{location.state?.reason || t('auth.signupIntro')}</p>
+        <GoogleButton mode="signup" onCredential={google} onError={setError} />
+        <div className="auth-or">
+          <span>{t('auth.or')}</span>
+        </div>
         <input
           className="input-box input-sm"
           placeholder={t('auth.name')}
@@ -59,9 +78,8 @@ export default function Signup() {
           onChange={(e) => setEmail(e.target.value)}
           required
         />
-        <input
+        <PasswordInput
           className="input-box input-sm"
-          type="password"
           placeholder={t('auth.passwordNew')}
           autoComplete="new-password"
           minLength={8}
@@ -83,6 +101,6 @@ export default function Signup() {
           </Link>
         </p>
       </form>
-    </div>
+    </AuthLayout>
   );
 }

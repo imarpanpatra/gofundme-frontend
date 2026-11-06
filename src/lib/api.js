@@ -38,7 +38,7 @@ export async function api(path, { method = 'GET', body, form } = {}) {
   }
   if (!(res.headers.get('content-type') || '').includes('application/json')) {
     console.error(`Expected JSON from ${API_URL || window.location.origin}/api${path}. Is VITE_API_URL set for this build?`);
-    throw new Error('The server returned an unexpected response. Please try again later.');
+    throw new Error(`The server returned an unexpected response (${res.status}). Please try again later.`);
   }
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {

@@ -27,7 +27,9 @@ export default {
   'header.share': 'शेयर करें',
   'header.login': 'लॉग इन',
   'header.signup': 'साइन अप',
-  'header.switchLang': 'View in English',
+
+  'theme.toDark': 'डार्क मोड चालू करें',
+  'theme.toLight': 'लाइट मोड चालू करें',
 
   'tabs.home': 'होम',
   'tabs.posts': 'पोस्ट',
@@ -183,7 +185,6 @@ export default {
   'hof.since': '{date} से सपोर्ट कर रहे हैं',
   'hof.showMore': 'और सपोर्टर्स दिखाएँ',
   'hof.ctaTitle': 'क्या आप अपना नाम यहाँ देखना चाहते हैं?',
-  'hof.credits': 'पृष्ठभूमि की तस्वीरें: {photos}, Jakub Hałun द्वारा, Wikimedia Commons से, <license>CC BY 4.0</license> लाइसेंस के तहत (धुंधली की गई)।',
   'hof.ctaBody': 'हर योगदान लीडरबोर्ड में गिना जाता है।',
 
   'account.goToDashboard': 'डैशबोर्ड पर जाएँ',
@@ -208,6 +209,10 @@ export default {
   'auth.loginIntro': 'अपने अकाउंट में लॉग इन करें।',
   'auth.email': 'ईमेल',
   'auth.password': 'पासवर्ड',
+  'auth.showPassword': 'पासवर्ड दिखाएँ',
+  'auth.hidePassword': 'पासवर्ड छिपाएँ',
+  'auth.or': 'या',
+  'auth.googleUnavailable': 'Google साइन-इन अभी उपलब्ध नहीं है। अपने ईमेल से जारी रखें।',
   'auth.newHere': 'पहली बार आए हैं?',
   'auth.createAccountLink': 'अकाउंट बनाएँ',
   'auth.createTitle': 'अपना अकाउंट बनाएँ',
@@ -262,6 +267,8 @@ export default {
   'aboutPage.onlineTitle': "ऑनलाइन हमें यहाँ पाएँ",
   'aboutPage.touchTitle': 'संपर्क करें',
   'aboutPage.touch': "कोई सवाल है या हमारे लिए कोई ट्रैवल टिप? <link>हमसे संपर्क करें</link>।",
+
+  'photos.credits': 'पृष्ठभूमि की तस्वीरें: {photos}, Jakub Hałun द्वारा, Wikimedia Commons से, <license>CC BY 4.0</license> लाइसेंस के तहत (धुंधली की गई)।',
 
   'notFound.title': 'पेज नहीं मिला',
   'notFound.body': 'आप जो पेज ढूँढ रहे हैं वह मौजूद नहीं है।',

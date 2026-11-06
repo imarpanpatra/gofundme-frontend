@@ -32,6 +32,13 @@ export function AuthProvider({ children }) {
     return d.user;
   }, []);
 
+  const loginWithGoogle = useCallback(async (credential) => {
+    const d = await api('/auth/google', { method: 'POST', body: { credential } });
+    tokenStore.set(d.token);
+    setUser(d.user);
+    return d.user;
+  }, []);
+
   const logout = useCallback(() => {
     tokenStore.set(null);
     setUser(null);
@@ -40,7 +47,7 @@ export function AuthProvider({ children }) {
   const isCreator = user?.kind === 'creator' || Boolean(user?.slug);
 
   return (
-    <AuthContext.Provider value={{ user, setUser, ready, login, signup, logout, isCreator }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ user, setUser, ready, login, signup, loginWithGoogle, logout, isCreator }}>{children}</AuthContext.Provider>
   );
 }
 

@@ -5,6 +5,7 @@ import Spinner from '../components/Spinner.jsx';
 import { CheckIcon, StarIcon } from '../components/icons.jsx';
 import { api } from '../lib/api.js';
 import { payWith } from '../lib/checkout.js';
+import { confetti } from '../lib/confetti.js';
 import { formatMoney } from '../lib/format.js';
 import { useToast } from '../context/ToastContext.jsx';
 import { useI18n } from '../i18n/index.jsx';
@@ -41,6 +42,7 @@ function Tiers({ creator, user, reload }) {
         onFailed: (msg) => toast(msg, 'error'),
       });
       if (support) {
+        confetti();
         toast(t('membership.welcome', { tier: tier.name }));
         load();
         reload();

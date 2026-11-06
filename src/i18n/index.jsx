@@ -1,22 +1,29 @@
 import { createContext, Fragment, isValidElement, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import en from './en.js';
 import hi from './hi.js';
+import mr from './mr.js';
 import { setFormatLang } from '../lib/format.js';
+import Dropdown, { DropdownItem } from '../components/Dropdown.jsx';
+import { CheckIcon, GlobeIcon } from '../components/icons.jsx';
 
-const MESSAGES = { en, hi };
+const MESSAGES = { en, hi, mr };
 const STORAGE_KEY = 'gfm_lang';
 
 export const LANGUAGES = [
   ['en', 'English'],
   ['hi', 'हिन्दी'],
+  ['mr', 'मराठी'],
 ];
+
+export const LOCALES = { en: 'en-IN', hi: 'hi-IN', mr: 'mr-IN' };
 
 function initialLang() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (MESSAGES[saved]) return saved;
   } catch {}
-  return navigator.language?.toLowerCase().startsWith('hi') ? 'hi' : 'en';
+  const nav = navigator.language?.toLowerCase().slice(0, 2);
+  return MESSAGES[nav] ? nav : 'en';
 }
 
 function lookup(lang, key, vars) {
@@ -94,5 +101,25 @@ export function LanguageSwitcher({ className = '' }) {
         </button>
       ))}
     </div>
+  );
+}
+
+export function LanguageMenu({ className = '' }) {
+  const { lang, setLang, t } = useI18n();
+  return (
+    <Dropdown
+      className={className}
+      trigger={({ toggle, open }) => (
+        <button type="button" className="icon-btn lang-menu-btn" onClick={toggle} aria-haspopup="menu" aria-expanded={open} aria-label={t('common.language')} title={t('common.language')}>
+          <GlobeIcon />
+        </button>
+      )}
+    >
+      {LANGUAGES.map(([code, label]) => (
+        <DropdownItem key={code} icon={code === lang ? <CheckIcon width={18} height={18} /> : <span className="lang-menu-blank" />} onClick={() => setLang(code)}>
+          <span lang={code}>{label}</span>
+        </DropdownItem>
+      ))}
+    </Dropdown>
   );
 }

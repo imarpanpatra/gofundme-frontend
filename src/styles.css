@@ -11,6 +11,26 @@
   --grey-f5: #f5f5f5;
   --header-h: 64px;
   --shadow-box: 0 0 2px 0 #00000026, 0 8px 40px 0 #0000000a, 0 2px 5px 0 #0000000d;
+  --surface: #ffffff;
+  --surface-2: #f7f7f7;
+  --surface-3: #ececec;
+  --surface-4: #e3e3e3;
+  --text: #222222;
+  --text-strong: #151515;
+  --text-2: #444444;
+  --muted: #6b6b6b;
+  --placeholder: #8a8a8a;
+  --hover: rgba(34, 34, 34, 0.05);
+  --border: #e3e3e3;
+  --border-soft: rgba(34, 34, 34, 0.05);
+  --border-strong: #d1d1d1;
+  --check-border: rgba(34, 34, 34, 0.5);
+  --toggle-off: #d5d7de;
+  --glass: rgba(255, 255, 255, 0.82);
+  --glass-strong: rgba(255, 255, 255, 0.92);
+  --glass-input: rgba(240, 240, 240, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.6);
+  --photo-tint: rgba(245, 245, 245, 0.15);
   color-scheme: light;
 }
 
@@ -27,8 +47,8 @@ html {
 body {
   margin: 0;
   font-family: 'DM Sans', 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  color: var(--dark);
-  background: #ffffff;
+  color: var(--text);
+  background: var(--surface);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -73,7 +93,7 @@ p {
   position: sticky;
   top: 0;
   z-index: 20;
-  background: #ffffff;
+  background: var(--surface);
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.03);
 }
 
@@ -165,7 +185,7 @@ p {
   height: 40px;
   border-radius: 999px;
   border: 1px solid var(--grey-e5);
-  background: #ffffff;
+  background: var(--surface);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -189,7 +209,7 @@ p {
 }
 
 .icon-btn:hover {
-  background: #f9f9f9;
+  background: var(--surface-2);
 }
 
 .text-link {
@@ -201,7 +221,7 @@ p {
 }
 
 .text-link:hover {
-  border-bottom-color: var(--dark);
+  border-bottom-color: var(--text);
 }
 
 .pill-btn {
@@ -226,7 +246,7 @@ p {
 
 .pill-outline {
   border-color: var(--grey-e5);
-  background: #ffffff;
+  background: var(--surface);
 }
 
 .pill-outline:hover:not(:disabled) {
@@ -255,7 +275,7 @@ p {
   padding: 0 4px 0 12px;
   border: 1px solid var(--grey-e5);
   border-radius: 999px;
-  background: #ffffff;
+  background: var(--surface);
   transition: background 0.15s;
 }
 
@@ -282,8 +302,8 @@ p {
   margin: 0;
   padding: 6px;
   list-style: none;
-  background: #ffffff;
-  border: 1px solid rgba(34, 34, 34, 0.05);
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
   border-radius: 12px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
 }
@@ -310,7 +330,7 @@ p {
 }
 
 .dropdown-item:hover {
-  background: rgba(34, 34, 34, 0.05);
+  background: var(--hover);
 }
 
 .dropdown-icon {
@@ -323,7 +343,7 @@ p {
 
 .cover-wrap {
   position: relative;
-  background: #ffffff;
+  background: var(--surface);
 }
 
 .cover-image {
@@ -347,7 +367,7 @@ p {
   padding: 0 16px;
   border: 0;
   border-radius: 8px;
-  background: #ffffff;
+  background: var(--surface);
   font-size: 15px;
   display: inline-flex;
   align-items: center;
@@ -384,7 +404,7 @@ p {
 }
 
 .feature-box {
-  background: #ffffff;
+  background: var(--surface);
   border-radius: 24px;
   padding: 24px;
 }
@@ -403,7 +423,7 @@ p {
 .input-box {
   width: 100%;
   background: var(--grey-f0);
-  color: #151515;
+  color: var(--text-strong);
   border: 2px solid transparent;
   border-radius: 12px;
   padding: 12px;
@@ -413,12 +433,12 @@ p {
 }
 
 .input-box:focus {
-  background: #ffffff;
+  background: var(--surface);
   border-color: var(--theme);
 }
 
 .input-box::placeholder {
-  color: #8a8a8a;
+  color: var(--placeholder);
 }
 
 .input-sm {
@@ -473,7 +493,7 @@ p {
 .chip {
   height: 32px;
   padding: 0 12px;
-  background: #ffffff;
+  background: var(--surface);
   border: 1px solid var(--grey-e5);
   border-radius: 8px;
   font-size: 15px;
@@ -482,7 +502,7 @@ p {
 }
 
 .chip:hover {
-  background: rgba(245, 245, 245, 0.9);
+  background: var(--grey-f5);
 }
 
 .chip:active {
@@ -527,7 +547,7 @@ p {
 }
 
 .message-field:focus-within {
-  background: #ffffff;
+  background: var(--surface);
   border-color: var(--theme);
 }
 
@@ -542,11 +562,11 @@ p {
   resize: none;
   outline: none;
   font-size: 14px;
-  color: #151515;
+  color: var(--text-strong);
 }
 
 .message-field textarea::placeholder {
-  color: #8a8a8a;
+  color: var(--placeholder);
 }
 
 .video-toggle {
@@ -561,7 +581,7 @@ p {
   overflow: hidden;
   border: 0;
   border-radius: 999px;
-  background: #ffffff;
+  background: var(--surface);
   box-shadow: var(--shadow-box);
   white-space: nowrap;
   transition: max-width 0.3s ease-in-out, background 0.15s;
@@ -629,14 +649,14 @@ p {
   width: 20px;
   height: 20px;
   flex-shrink: 0;
-  border: 1px solid rgba(34, 34, 34, 0.5);
+  border: 1px solid var(--check-border);
   border-radius: 6px;
   transition: all 0.15s;
 }
 
 .checkbox:hover .checkmark {
-  border-color: rgba(34, 34, 34, 0.9);
-  box-shadow: 0 0 0 3px #e5e7eb;
+  border-color: var(--text);
+  box-shadow: 0 0 0 3px var(--grey-e5);
 }
 
 .checkbox input:checked ~ .checkmark {
@@ -673,7 +693,7 @@ p {
 .tip {
   position: relative;
   display: inline-flex;
-  color: rgba(34, 34, 34, 0.5);
+  color: var(--muted);
   cursor: help;
   outline: none;
 }
@@ -685,11 +705,11 @@ p {
   z-index: 50;
   width: 208px;
   padding: 12px;
-  background: #ffffff;
+  background: var(--surface);
   border: 1px solid var(--grey-e5);
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  color: var(--dark);
+  color: var(--text);
   font-size: 14px;
   line-height: 20px;
   text-align: center;
@@ -787,7 +807,7 @@ p {
 .about-section {
   padding-bottom: 24px;
   margin-bottom: 24px;
-  border-bottom: 1px solid rgba(221, 221, 221, 0.8);
+  border-bottom: 1px solid var(--border);
 }
 
 .about-head {
@@ -838,7 +858,7 @@ p {
 
 .about-links a {
   display: inline-flex;
-  color: var(--dark);
+  color: var(--text);
   opacity: 0.8;
   transition: opacity 0.15s;
 }
@@ -964,7 +984,7 @@ a.supporter-name:hover {
 }
 
 .footer-links a {
-  color: var(--dark);
+  color: var(--text);
   font-size: 14px;
 }
 
@@ -1153,7 +1173,7 @@ a.supporter-name:hover {
   display: inline-block;
   width: 24px;
   height: 24px;
-  border: 3px solid #d1d5db;
+  border: 3px solid var(--border-strong);
   border-top-color: var(--theme);
   border-radius: 999px;
   animation: spin 0.8s linear infinite;
@@ -1219,7 +1239,7 @@ a.supporter-name:hover {
 
 .modal {
   width: 100%;
-  background: #ffffff;
+  background: var(--surface);
   border-radius: 20px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
   animation: modal-in 0.18s ease-out;
@@ -1333,7 +1353,7 @@ a.supporter-name:hover {
 }
 
 .rich:focus-within {
-  background: #ffffff;
+  background: var(--surface);
   border-color: var(--theme);
 }
 
@@ -1341,7 +1361,7 @@ a.supporter-name:hover {
   display: flex;
   gap: 4px;
   padding: 6px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  border-bottom: 1px solid var(--border);
 }
 
 .rich-toolbar button {
@@ -1356,7 +1376,7 @@ a.supporter-name:hover {
 }
 
 .rich-toolbar button:hover {
-  background: rgba(0, 0, 0, 0.06);
+  background: var(--hover);
 }
 
 .rich-area {
@@ -1389,13 +1409,13 @@ a.supporter-name:hover {
   width: 30px;
   height: 30px;
   padding: 0;
-  border: 2px solid #ffffff;
+  border: 2px solid var(--surface);
   border-radius: 999px;
   box-shadow: 0 0 0 1px var(--grey-e5);
 }
 
 .swatch.active {
-  box-shadow: 0 0 0 2px var(--dark);
+  box-shadow: 0 0 0 2px var(--text);
 }
 
 .swatches input[type='color'] {
@@ -1440,7 +1460,7 @@ a.supporter-name:hover {
   width: 30px;
   height: 30px;
   border-radius: 999px;
-  border: 3px solid #ffffff;
+  border: 3px solid var(--surface);
   background: var(--theme);
   color: #ffffff;
   display: inline-flex;
@@ -1496,7 +1516,7 @@ a.supporter-name:hover {
   flex-direction: column;
   gap: 14px;
   padding: 36px 32px;
-  background: #ffffff;
+  background: var(--surface);
   border-radius: 24px;
 }
 
@@ -1611,8 +1631,8 @@ a.supporter-name:hover {
 }
 
 .dash-tab.active {
-  background: #ffffff;
-  color: var(--dark);
+  background: var(--surface);
+  color: var(--text);
   font-weight: 500;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
@@ -1706,7 +1726,7 @@ a.supporter-name:hover {
   margin-top: 12px;
   font-size: 13px;
   text-align: center;
-  color: var(--dark);
+  color: var(--text);
 }
 
 .support-account-note a {
@@ -1922,11 +1942,11 @@ a.hof-name:hover {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #ffffff;
+  background: var(--surface);
   border: 3px solid var(--medal);
   font-size: 20px;
   font-weight: 700;
-  color: var(--dark);
+  color: var(--text);
 }
 
 .podium-gold .podium-avatar {
@@ -2149,7 +2169,7 @@ a.hof-name:hover {
 
   .sidebar-box .about-section,
   .sidebar-box .supporters-section {
-    background: #ffffff;
+    background: var(--surface);
     border-radius: 16px;
     padding: 16px;
     margin: 16px 0 0;
@@ -2177,7 +2197,7 @@ a.hof-name:hover {
     display: block;
     height: 80px;
     padding: 16px;
-    background: #ffffff;
+    background: var(--surface);
     border-top: 1px solid var(--grey-e5);
     transition: bottom 0.3s ease-in-out;
   }

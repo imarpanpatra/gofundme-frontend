@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, NavLink, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Dropdown, { DropdownItem } from '../Dropdown.jsx';
 import Spinner from '../Spinner.jsx';
+import ThemeToggle from '../ThemeToggle.jsx';
 import {
   BagIcon,
   ChevronDownIcon,
@@ -101,6 +102,7 @@ export default function StudioLayout() {
           <button type="button" className="icon-btn studio-burger" onClick={() => setDrawer(true)} aria-label="Open menu">
             <MenuIcon />
           </button>
+          <ThemeToggle className="studio-theme" />
           <Dropdown
             trigger={({ toggle, open }) => (
               <button type="button" className="menu-pill studio-menu" onClick={toggle} aria-haspopup="menu" aria-expanded={open}>
