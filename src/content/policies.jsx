@@ -305,8 +305,8 @@ export const POLICIES = {
           <li>Razorpay, to process payments and subscriptions</li>
           <li>Our hosting and database providers (Vercel, Netlify and MongoDB Atlas), which run the Site and store its data on our behalf</li>
           <li>
-            catbox.moe, which stores the images and video messages uploaded to the Site. Anyone who has a file's direct link
-            can open it, so please do not record anything confidential in a video message.
+            Vercel Blob (and, for older files, catbox.moe), which store the images and video messages uploaded to the Site.
+            Anyone who has a file's direct link can open it, so please do not record anything confidential in a video message.
           </li>
           <li>YouTube, when a page shows an embedded video. We use YouTube's privacy-enhanced mode.</li>
           <li>Google Fonts, which serves the Site's font and receives your IP address when the page loads</li>
